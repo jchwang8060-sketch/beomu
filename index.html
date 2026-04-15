@@ -8,13 +8,11 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
   --primary: #3b82f6;
   --primary-light: #eff6ff;
   --primary-dark: #1d4ed8;
-  --accent: #f59e0b;
   --green: #10b981;
   --red: #ef4444;
   --bg: #f8fafc;
@@ -81,7 +79,6 @@ section:nth-child(even) { background: #f1f5f9; }
 .av-gray   { background: linear-gradient(135deg,#64748b,#475569); }
 .member-name { font-size: 13px; font-weight: 500; color: var(--text); }
 .member-hist { font-size: 10px; color: var(--primary); margin-top: 3px; }
-
 .tl-item { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
 .tl-item:last-child { border-bottom: none; }
 .tl-dot { width: 32px; height: 32px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
@@ -90,15 +87,16 @@ section:nth-child(even) { background: #f1f5f9; }
 .tl-names { font-size: 14px; font-weight: 500; color: var(--text); }
 .tl-now { display: inline-block; font-size: 10px; background: var(--primary); color: #fff; padding: 1px 7px; border-radius: 10px; margin-left: 6px; vertical-align: middle; }
 
-/* 사진첩 */
 .year-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.25rem; }
 .year-tab { padding: 5px 14px; border-radius: 20px; border: 1px solid var(--border); font-size: 12px; color: var(--text2); cursor: pointer; background: var(--surface); transition: all .15s; }
 .year-tab:hover { border-color: var(--primary); color: var(--primary); }
 .year-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+.upload-area { display: flex; align-items: center; gap: 10px; margin-bottom: 0.75rem; flex-wrap: wrap; }
 .upload-btn { display: inline-flex; align-items: center; gap: 7px; padding: 8px 18px; background: var(--primary); color: #fff; border: none; border-radius: var(--radius); font-size: 13px; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; transition: background .2s; }
 .upload-btn:hover { background: var(--primary-dark); }
-.upload-btn:disabled { background: var(--text3); cursor: not-allowed; }
 #fileInput { display: none; }
+.photo-count { font-size: 13px; color: var(--text3); }
+.upload-progress { font-size: 12px; color: var(--primary); min-height: 20px; margin-bottom: 0.75rem; }
 .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
 .photo-item { border-radius: 10px; overflow: hidden; background: var(--border); border: 1px solid var(--border); }
 .photo-img-wrap { aspect-ratio: 1; overflow: hidden; cursor: pointer; }
@@ -117,23 +115,22 @@ section:nth-child(even) { background: #f1f5f9; }
 .comment-author { font-weight: 500; color: var(--primary); margin-right: 5px; }
 .comment-del { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 11px; }
 .comment-del:hover { color: var(--red); }
-.comment-input-row { display: flex; gap: 5px; margin-top: 7px; }
+.comment-input-row { display: flex; gap: 5px; margin-top: 7px; flex-wrap: wrap; }
 .comment-input-row select, .comment-input-row input { border: 1px solid var(--border); border-radius: 8px; padding: 4px 8px; font-size: 12px; font-family: inherit; background: #fff; }
 .comment-input-row select { min-width: 75px; }
-.comment-input-row input { flex: 1; }
-.comment-input-row button { background: var(--primary); color: #fff; border: none; border-radius: 8px; padding: 4px 10px; font-size: 12px; cursor: pointer; white-space: nowrap; }
+.comment-input-row input { flex: 1; min-width: 100px; }
+.comment-input-row button { background: var(--primary); color: #fff; border: none; border-radius: 8px; padding: 4px 10px; font-size: 12px; cursor: pointer; }
 .photo-empty { text-align: center; padding: 3rem 1rem; color: var(--text3); }
 .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 999; align-items: center; justify-content: center; }
 .lightbox.open { display: flex; }
 .lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 8px; }
 .lightbox-close { position: absolute; top: 18px; right: 24px; color: #fff; font-size: 30px; cursor: pointer; }
 
-/* 게시판 */
 .post-form { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1.25rem; box-shadow: var(--shadow); }
 .post-form-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
 .post-form select, .post-form input, .post-form textarea { border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 13px; font-family: inherit; background: #fff; color: var(--text); }
 .post-form select { min-width: 90px; }
-.post-form input { flex: 1; min-width: 180px; width: 100%; }
+.post-form input { flex: 1; min-width: 180px; }
 .post-form textarea { width: 100%; resize: vertical; min-height: 80px; margin-bottom: 8px; }
 .post-form button { background: var(--primary); color: #fff; border: none; border-radius: 8px; padding: 8px 20px; font-size: 13px; cursor: pointer; font-family: inherit; }
 .post-list { display: flex; flex-direction: column; gap: 10px; }
@@ -156,7 +153,7 @@ section:nth-child(even) { background: #f1f5f9; }
 .reply-input-row select, .reply-input-row input { border: 1px solid var(--border); border-radius: 8px; padding: 5px 10px; font-size: 12px; font-family: inherit; background: #fff; }
 .reply-input-row select { min-width: 80px; }
 .reply-input-row input { flex: 1; min-width: 120px; }
-.reply-input-row button { background: var(--primary); color: #fff; border: none; border-radius: 8px; padding: 5px 12px; font-size: 12px; cursor: pointer; white-space: nowrap; }
+.reply-input-row button { background: var(--primary); color: #fff; border: none; border-radius: 8px; padding: 5px 12px; font-size: 12px; cursor: pointer; }
 .post-empty { text-align: center; padding: 2rem; color: var(--text3); font-size: 14px; }
 
 .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 10px; font-size: 12px; color: var(--text2); }
@@ -213,7 +210,6 @@ input[type=range]::-webkit-slider-thumb { appearance: none; width: 16px; height:
 .loading { text-align: center; padding: 2rem; color: var(--text3); font-size: 13px; }
 .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin .6s linear infinite; margin-right: 6px; vertical-align: middle; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.upload-progress { font-size: 12px; color: var(--text3); margin-top: 6px; }
 
 footer { background: var(--text); color: rgba(255,255,255,0.4); text-align: center; padding: 2rem 1rem; font-size: 12px; }
 footer .hl { color: rgba(255,255,255,0.85); }
@@ -261,16 +257,15 @@ footer .hl { color: rgba(255,255,255,0.85); }
   <div class="container">
     <p class="section-tag">Gallery</p>
     <h2 class="section-title">사진첩</h2>
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;flex-wrap:wrap;">
+    <div class="upload-area">
       <label for="fileInput" class="upload-btn" id="uploadLabel">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
         사진 업로드
       </label>
       <input type="file" id="fileInput" accept="image/*" multiple>
-      <select id="uploadYear" style="border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:13px;font-family:inherit;background:#fff;"></select>
-      <span id="photoCount" style="font-size:13px;color:var(--text3);"></span>
+      <span class="photo-count" id="photoCount"></span>
     </div>
-    <div id="uploadProgress" class="upload-progress"></div>
+    <div class="upload-progress" id="uploadProgress"></div>
     <div class="year-tabs" id="yearTabs"></div>
     <div id="photoGrid" class="photo-grid"></div>
     <div id="photoEmpty" class="photo-empty" style="display:none;">
@@ -350,7 +345,7 @@ footer .hl { color: rgba(255,255,255,0.85); }
       <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center;">
         <span style="font-size:12px;color:var(--text2);">목표 금액 조정:</span>
         <input type="range" id="goalSlider" min="500" max="2000" value="1000" step="50" oninput="updateGoal()" style="flex:1;min-width:120px;">
-        <span id="goalVal" style="font-size:13px;font-weight:500;color:var(--text);min-width:60px;">1,000만원</span>
+        <span id="goalVal" style="font-size:13px;font-weight:500;min-width:60px;">1,000만원</span>
       </div>
     </div>
     <div class="sim-grid">
@@ -443,15 +438,52 @@ footer .hl { color: rgba(255,255,255,0.85); }
 </footer>
 
 <script>
-/* ═══ Supabase ═══ */
-const SUPABASE_URL = 'https://sewbflcrqyiefvtgjtou.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNld2JmbGNycXlpZWZ2dGdqdG91Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxODcwMjMsImV4cCI6MjA5MTc2MzAyM30.v2lHyBe9y9pIkFnAsZUUaDc3-y2mb__l5FjmpXwWdJk';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+/* ═══ Supabase REST API (직접 fetch 방식 - 가장 안정적) ═══ */
+const SB_URL = 'https://sewbflcrqyiefvtgjtou.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNld2JmbGNycXlpZWZ2dGdqdG91Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxODcwMjMsImV4cCI6MjA5MTc2MzAyM30.v2lHyBe9y9pIkFnAsZUUaDc3-y2mb__l5FjmpXwWdJk';
+const HDR = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation' };
 
+async function dbGet(table, params='') {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}?${params}`, { headers: HDR });
+  return r.ok ? r.json() : [];
+}
+async function dbPost(table, body) {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}`, { method:'POST', headers: HDR, body: JSON.stringify(body) });
+  return r.ok ? r.json() : null;
+}
+async function dbDelete(table, id) {
+  await fetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`, { method:'DELETE', headers: HDR });
+}
+async function dbCount(table) {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}?select=id`, { headers: { ...HDR, 'Prefer': 'count=exact', 'Range': '0-0' } });
+  const cr = r.headers.get('content-range');
+  return cr ? parseInt(cr.split('/')[1]) || 0 : 0;
+}
+
+// Storage 업로드
+async function storageUpload(path, file) {
+  const r = await fetch(`${SB_URL}/storage/v1/object/photos/${path}`, {
+    method: 'POST',
+    headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': file.type, 'x-upsert': 'false' },
+    body: file
+  });
+  return r.ok;
+}
+async function storageDelete(path) {
+  await fetch(`${SB_URL}/storage/v1/object/photos/${path}`, {
+    method: 'DELETE',
+    headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+  });
+}
+function storagePublicUrl(path) {
+  return `${SB_URL}/storage/v1/object/public/photos/${path}`;
+}
+
+/* ═══ 공통 ═══ */
 Chart.defaults.font.family = "'Noto Sans KR', sans-serif";
 Chart.defaults.color = '#94a3b8';
 const MEMBER_NAMES = ['김상만','김주성','김찬성','김태우','김태환','박성준','박현','유병욱','장영익','정민기','황재철'];
-const YEARS = Array.from({length:11},(_,i)=>2020+i);
+const YEARS = Array.from({length:11}, (_,i) => 2020+i);
 
 /* ═══ 구성원 ═══ */
 const members = [
@@ -467,45 +499,39 @@ const members = [
   {name:'정민기',role:'정회원',hist:'',av:'av-gray'},
   {name:'황재철',role:'총무',  hist:'3대 총무',av:'av-green'},
 ];
-const badgeMap={회장:'badge-blue',총무:'badge-green',전회장:'badge-purple',전총무:'badge-amber',정회원:'badge-gray'};
-document.getElementById('memberGrid').innerHTML=members.map(m=>`
+const badgeMap = {회장:'badge-blue',총무:'badge-green',전회장:'badge-purple',전총무:'badge-amber',정회원:'badge-gray'};
+document.getElementById('memberGrid').innerHTML = members.map(m => `
   <div class="member-card">
     <div class="avatar ${m.av}">${m.name[0]}</div>
     <div class="member-name">${m.name}</div>
     <div style="margin-top:4px"><span class="badge ${badgeMap[m.role]||'badge-gray'}">${m.role}</span></div>
-    ${m.hist?`<div class="member-hist">${m.hist}</div>`:''}
+    ${m.hist ? `<div class="member-hist">${m.hist}</div>` : ''}
   </div>`).join('');
-
-document.getElementById('officerTimeline').innerHTML=[
-  {gen:'1대',chair:'김찬성',sec:'김태환',current:false},
-  {gen:'2대',chair:'김주성',sec:'박현',current:false},
-  {gen:'3대',chair:'장영익',sec:'황재철',current:true},
-].map(o=>`
+document.getElementById('officerTimeline').innerHTML = [
+  {gen:'1대',chair:'김찬성',sec:'김태환',cur:false},
+  {gen:'2대',chair:'김주성',sec:'박현',cur:false},
+  {gen:'3대',chair:'장영익',sec:'황재철',cur:true},
+].map(o => `
   <div class="tl-item">
-    <div class="tl-dot ${o.current?'current':''}">${o.gen[0]}</div>
+    <div class="tl-dot ${o.cur?'current':''}">${o.gen[0]}</div>
     <div><div class="tl-gen">${o.gen}</div>
-    <div class="tl-names">회장 ${o.chair} · 총무 ${o.sec}${o.current?'<span class="tl-now">현재</span>':''}</div></div>
+    <div class="tl-names">회장 ${o.chair} · 총무 ${o.sec}${o.cur?'<span class="tl-now">현재</span>':''}</div></div>
   </div>`).join('');
 
-/* ═══ 사진첩 - Supabase Storage 방식 ═══ */
+/* ═══ 사진첩 ═══ */
 let activeYear = new Date().getFullYear();
-const yearTabsEl = document.getElementById('yearTabs');
-const uploadYearEl = document.getElementById('uploadYear');
+let uploading = false;
 
+const yearTabsEl = document.getElementById('yearTabs');
 YEARS.forEach(y => {
   const btn = document.createElement('button');
   btn.className = 'year-tab' + (y === activeYear ? ' active' : '');
   btn.textContent = y + '년';
-  btn.onclick = () => { activeYear = y; renderYearTabs(); loadPhotos(); };
+  btn.onclick = () => { if (uploading) return; activeYear = y; renderYearTabs(); loadPhotos(); };
   yearTabsEl.appendChild(btn);
-  const opt = document.createElement('option');
-  opt.value = y; opt.textContent = y + '년';
-  if (y === activeYear) opt.selected = true;
-  uploadYearEl.appendChild(opt);
 });
-
 function renderYearTabs() {
-  yearTabsEl.querySelectorAll('.year-tab').forEach((b, i) => b.classList.toggle('active', YEARS[i] === activeYear));
+  yearTabsEl.querySelectorAll('.year-tab').forEach((b,i) => b.classList.toggle('active', YEARS[i] === activeYear));
 }
 
 async function loadPhotos() {
@@ -514,35 +540,41 @@ async function loadPhotos() {
   pg.innerHTML = '<div class="loading" style="grid-column:1/-1"><span class="spinner"></span>불러오는 중...</div>';
   empty.style.display = 'none';
 
-  const { data, error } = await sb.from('photos')
-    .select('*, photo_comments(*)')
-    .eq('year', activeYear)
-    .order('created_at', { ascending: false });
+  // 사진 목록
+  const photos = await dbGet('photos', `year=eq.${activeYear}&order=created_at.desc&select=id,name,year,src,storage_path`);
+  // 각 사진의 댓글
+  const photoIds = photos.map(p => p.id);
+  let allComments = [];
+  if (photoIds.length > 0) {
+    allComments = await dbGet('photo_comments', `photo_id=in.(${photoIds.join(',')})&order=created_at.asc`);
+  }
+
+  // 전체 카운트
+  const total = await dbCount('photos');
+  document.getElementById('photoCount').textContent = `전체 ${total}장`;
 
   pg.innerHTML = '';
-  if (error || !data || data.length === 0) {
-    empty.style.display = 'block';
-    updatePhotoCount();
-    return;
-  }
-  data.forEach(p => renderPhotoItem(p, pg));
-  updatePhotoCount();
+  if (!photos || photos.length === 0) { empty.style.display = 'block'; return; }
+
+  photos.forEach(p => {
+    const comments = allComments.filter(c => c.photo_id === p.id);
+    renderPhotoItem(p, comments, pg);
+  });
 }
 
-async function updatePhotoCount() {
-  const { count } = await sb.from('photos').select('*', { count: 'exact', head: true });
-  document.getElementById('photoCount').textContent = `전체 ${count || 0}장`;
-}
-
-function renderPhotoItem(p, container) {
+function renderPhotoItem(p, comments, container) {
   const div = document.createElement('div');
   div.className = 'photo-item';
-  const comments = p.photo_comments || [];
   div.innerHTML = `
-    <div class="photo-img-wrap"><img src="${p.src}" alt="${p.name}" loading="lazy"></div>
+    <div class="photo-img-wrap">
+      <img src="${p.src}" alt="${p.name}" loading="lazy">
+    </div>
     <div class="photo-footer">
       <div class="photo-name">${p.name}</div>
-      <div class="photo-meta"><span>${p.year}년</span><button class="photo-del" title="삭제">🗑</button></div>
+      <div class="photo-meta">
+        <span>${p.year}년</span>
+        <button class="photo-del">🗑</button>
+      </div>
       <button class="comment-toggle">💬 댓글 ${comments.length}개</button>
     </div>
     <div class="comment-section">
@@ -555,18 +587,17 @@ function renderPhotoItem(p, container) {
     </div>`;
 
   const sel = div.querySelector('.comm-author');
-  MEMBER_NAMES.forEach(n => { const o = document.createElement('option'); o.value = n; o.textContent = n; sel.appendChild(o); });
+  MEMBER_NAMES.forEach(n => { const o = document.createElement('option'); o.value=n; o.textContent=n; sel.appendChild(o); });
 
   function renderComments(cms) {
     const cl = div.querySelector('.comment-list');
     cl.innerHTML = '';
     cms.forEach(c => {
-      const d = document.createElement('div');
-      d.className = 'comment-item';
-      d.innerHTML = `<span><span class="comment-author">${c.author}</span>${c.text}</span><button class="comment-del" data-id="${c.id}">✕</button>`;
+      const d = document.createElement('div'); d.className = 'comment-item';
+      d.innerHTML = `<span><span class="comment-author">${c.author}</span>${c.text}</span><button class="comment-del">✕</button>`;
       d.querySelector('.comment-del').onclick = async () => {
-        if (!confirm('삭제할까요?')) return;
-        await sb.from('photo_comments').delete().eq('id', c.id);
+        if (!confirm('댓글을 삭제할까요?')) return;
+        await dbDelete('photo_comments', c.id);
         loadPhotos();
       };
       cl.appendChild(d);
@@ -580,18 +611,15 @@ function renderPhotoItem(p, container) {
     const txt = div.querySelector('.comm-text').value.trim();
     const auth = div.querySelector('.comm-author').value;
     if (!txt) return;
-    await sb.from('photo_comments').insert({ photo_id: p.id, author: auth, text: txt });
+    await dbPost('photo_comments', { photo_id: p.id, author: auth, text: txt });
     div.querySelector('.comm-text').value = '';
     loadPhotos();
   };
   div.querySelector('.photo-img-wrap').onclick = () => openLightbox(p.src);
   div.querySelector('.photo-del').onclick = async () => {
-    if (!confirm('삭제할까요?')) return;
-    // Storage에서 파일 삭제
-    if (p.storage_path) {
-      await sb.storage.from('photos').remove([p.storage_path]);
-    }
-    await sb.from('photos').delete().eq('id', p.id);
+    if (!confirm('사진을 삭제할까요?')) return;
+    if (p.storage_path) await storageDelete(p.storage_path);
+    await dbDelete('photos', p.id);
     loadPhotos();
   };
   container.appendChild(div);
@@ -603,81 +631,67 @@ function closeLightbox() { document.getElementById('lightbox').classList.remove(
 document.getElementById('fileInput').addEventListener('change', async function(e) {
   const files = Array.from(e.target.files);
   if (!files.length) return;
-  const year = parseInt(document.getElementById('uploadYear').value);
+  uploading = true;
   const label = document.getElementById('uploadLabel');
   const progress = document.getElementById('uploadProgress');
-
-  label.style.pointerEvents = 'none';
-  label.style.opacity = '0.6';
-
+  label.style.opacity = '0.6'; label.style.pointerEvents = 'none';
+  let ok = 0;
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
-    progress.textContent = `업로드 중... (${i + 1}/${files.length}) ${file.name}`;
-
-    // 파일명 유니크하게
-    const ext = file.name.split('.').pop();
-    const fileName = `${year}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-
-    // Storage에 업로드
-    const { data: storageData, error: storageError } = await sb.storage
-      .from('photos')
-      .upload(fileName, file, { cacheControl: '3600', upsert: false });
-
-    if (storageError) {
-      alert(`업로드 실패: ${file.name}\n${storageError.message}`);
-      continue;
-    }
-
-    // 공개 URL 가져오기
-    const { data: urlData } = sb.storage.from('photos').getPublicUrl(fileName);
-    const publicUrl = urlData.publicUrl;
-
-    // DB에 저장
-    await sb.from('photos').insert({
-      name: file.name.replace(/\.[^.]+$/, ''),
-      year,
-      src: publicUrl,
-      storage_path: fileName
-    });
+    progress.textContent = `⏳ (${i+1}/${files.length}) ${file.name} 업로드 중...`;
+    const ext = file.name.split('.').pop().toLowerCase();
+    const path = `${activeYear}/${Date.now()}_${Math.random().toString(36).slice(2,7)}.${ext}`;
+    const success = await storageUpload(path, file);
+    if (!success) { progress.textContent = `❌ 실패: ${file.name}`; await new Promise(r=>setTimeout(r,1500)); continue; }
+    const publicUrl = storagePublicUrl(path);
+    await dbPost('photos', { name: file.name.replace(/\.[^.]+$/,''), year: activeYear, src: publicUrl, storage_path: path });
+    ok++;
   }
-
-  progress.textContent = `✅ ${files.length}장 업로드 완료!`;
+  progress.textContent = `✅ ${ok}장 업로드 완료!`;
   setTimeout(() => { progress.textContent = ''; }, 3000);
-  label.style.pointerEvents = '';
-  label.style.opacity = '';
-  activeYear = year;
-  renderYearTabs();
-  loadPhotos();
+  label.style.opacity = ''; label.style.pointerEvents = '';
+  uploading = false;
   this.value = '';
+  loadPhotos();
 });
 
 loadPhotos();
 
 /* ═══ 게시판 ═══ */
 const postAuthorEl = document.getElementById('postAuthor');
-MEMBER_NAMES.forEach(n => { const o = document.createElement('option'); o.value = n; o.textContent = n; postAuthorEl.appendChild(o); });
+MEMBER_NAMES.forEach(n => { const o = document.createElement('option'); o.value=n; o.textContent=n; postAuthorEl.appendChild(o); });
 
 async function loadPosts() {
   const pl = document.getElementById('postList');
   pl.innerHTML = '<div class="loading"><span class="spinner"></span>불러오는 중...</div>';
-  const { data, error } = await sb.from('posts').select('*, post_replies(*)').order('created_at', { ascending: false });
+  const posts = await dbGet('posts', 'order=created_at.desc');
+  const postIds = posts.map(p => p.id);
+  let allReplies = [];
+  if (postIds.length > 0) {
+    allReplies = await dbGet('post_replies', `post_id=in.(${postIds.join(',')})&order=created_at.asc`);
+  }
   pl.innerHTML = '';
-  if (error || !data || data.length === 0) { pl.innerHTML = '<div class="post-empty">아직 게시글이 없습니다.</div>'; return; }
-  data.forEach(p => renderPostItem(p, pl));
+  if (!posts || posts.length === 0) { pl.innerHTML = '<div class="post-empty">아직 게시글이 없습니다.</div>'; return; }
+  posts.forEach(p => {
+    const replies = allReplies.filter(r => r.post_id === p.id);
+    renderPostItem(p, replies, pl);
+  });
 }
 
-function renderPostItem(p, container) {
-  const catEmoji = { '공지': '📢', '일반': '💬', '질문': '❓', '유머': '😄' };
+function renderPostItem(p, replies, container) {
+  const emoji = {'공지':'📢','일반':'💬','질문':'❓','유머':'😄'};
   const date = new Date(p.created_at).toLocaleDateString('ko-KR');
-  const div = document.createElement('div');
-  div.className = 'post-item';
+  const div = document.createElement('div'); div.className = 'post-item';
   div.innerHTML = `
     <div class="post-header">
-      <div><div class="post-title">${catEmoji[p.category] || ''} ${p.title}</div><div class="post-meta">${p.author} · ${date} · <span class="badge badge-gray">${p.category}</span></div></div>
+      <div>
+        <div class="post-title">${emoji[p.category]||''} ${p.title}</div>
+        <div class="post-meta">${p.author} · ${date} · <span class="badge badge-gray">${p.category}</span></div>
+      </div>
       <button class="post-del">🗑</button>
     </div>
     <div class="post-body">${p.body}</div>
-    <button class="post-reply-toggle">💬 댓글 ${(p.post_replies || []).length}개</button>
+    <button class="post-reply-toggle">💬 댓글 ${replies.length}개</button>
     <div class="post-replies">
       <div class="reply-list"></div>
       <div class="reply-input-row">
@@ -686,39 +700,26 @@ function renderPostItem(p, container) {
         <button class="reply-submit">등록</button>
       </div>
     </div>`;
-
   const sel = div.querySelector('.reply-author');
-  MEMBER_NAMES.forEach(n => { const o = document.createElement('option'); o.value = n; o.textContent = n; sel.appendChild(o); });
-
-  function renderReplies(replies) {
-    const rl = div.querySelector('.reply-list');
-    rl.innerHTML = '';
-    (replies || []).forEach(r => {
-      const d = document.createElement('div');
-      d.className = 'reply-item';
-      d.innerHTML = `<span><span class="reply-author">${r.author}</span>${r.text}</span><button class="reply-del" data-id="${r.id}">✕</button>`;
-      d.querySelector('.reply-del').onclick = async () => {
-        if (!confirm('삭제할까요?')) return;
-        await sb.from('post_replies').delete().eq('id', r.id);
-        loadPosts();
-      };
+  MEMBER_NAMES.forEach(n => { const o = document.createElement('option'); o.value=n; o.textContent=n; sel.appendChild(o); });
+  function renderReplies(rs) {
+    const rl = div.querySelector('.reply-list'); rl.innerHTML = '';
+    rs.forEach(r => {
+      const d = document.createElement('div'); d.className = 'reply-item';
+      d.innerHTML = `<span><span class="reply-author">${r.author}</span>${r.text}</span><button class="reply-del">✕</button>`;
+      d.querySelector('.reply-del').onclick = async () => { if (!confirm('삭제?')) return; await dbDelete('post_replies', r.id); loadPosts(); };
       rl.appendChild(d);
     });
-    div.querySelector('.post-reply-toggle').textContent = `💬 댓글 ${(replies || []).length}개`;
+    div.querySelector('.post-reply-toggle').textContent = `💬 댓글 ${rs.length}개`;
   }
-  renderReplies(p.post_replies);
-
-  div.querySelector('.post-del').onclick = async () => {
-    if (!confirm('글을 삭제할까요?')) return;
-    await sb.from('posts').delete().eq('id', p.id);
-    loadPosts();
-  };
+  renderReplies(replies);
+  div.querySelector('.post-del').onclick = async () => { if (!confirm('글을 삭제할까요?')) return; await dbDelete('posts', p.id); loadPosts(); };
   div.querySelector('.post-reply-toggle').onclick = () => div.querySelector('.post-replies').classList.toggle('open');
   div.querySelector('.reply-submit').onclick = async () => {
     const txt = div.querySelector('.reply-text').value.trim();
     const auth = div.querySelector('.reply-author').value;
     if (!txt) return;
-    await sb.from('post_replies').insert({ post_id: p.id, author: auth, text: txt });
+    await dbPost('post_replies', { post_id: p.id, author: auth, text: txt });
     div.querySelector('.reply-text').value = '';
     loadPosts();
   };
@@ -731,130 +732,117 @@ async function submitPost() {
   const title = document.getElementById('postTitle').value.trim();
   const body = document.getElementById('postBody').value.trim();
   if (!title || !body) { alert('제목과 내용을 입력해주세요.'); return; }
-  await sb.from('posts').insert({ author, category, title, body });
+  await dbPost('posts', { author, category, title, body });
   document.getElementById('postTitle').value = '';
   document.getElementById('postBody').value = '';
   loadPosts();
 }
-
 loadPosts();
 
 /* ═══ 자금 차트 ═══ */
 new Chart(document.getElementById('yearFundChart'), {
-  type: 'bar',
-  data: { labels: ['2024년 말', '2025년 말'], datasets: [
-    { label: '계좌', data: [137, 138], backgroundColor: 'rgba(59,130,246,0.8)' },
-    { label: '세이프티박스', data: [350, 401], backgroundColor: 'rgba(16,185,129,0.75)' },
-    { label: '합계', data: [487, 539], backgroundColor: 'rgba(245,158,11,0.7)' }
+  type:'bar', data:{ labels:['2024년 말','2025년 말'], datasets:[
+    {label:'계좌',data:[137,138],backgroundColor:'rgba(59,130,246,0.8)'},
+    {label:'세이프티박스',data:[350,401],backgroundColor:'rgba(16,185,129,0.75)'},
+    {label:'합계',data:[487,539],backgroundColor:'rgba(245,158,11,0.7)'}
   ]},
-  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { font: { size: 12 } } }, y: { ticks: { callback: v => v + '만' } } } }
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:12}}},y:{ticks:{callback:v=>v+'만'}}}}
 });
-const expLabels = ['여름여행', '겨울정기모임', '경조사', '임시모임'];
-const expData = [999060, 930026, 290000, 487900];
-const expColors = ['#3b82f6', '#10b981', '#ef4444', '#f59e0b'];
+const expLabels=['여름여행','겨울정기모임','경조사','임시모임'];
+const expData=[999060,930026,290000,487900];
+const expColors=['#3b82f6','#10b981','#ef4444','#f59e0b'];
 new Chart(document.getElementById('expCatChart'), {
-  type: 'doughnut',
-  data: { labels: expLabels, datasets: [{ data: expData, backgroundColor: expColors, borderWidth: 0, hoverOffset: 4 }] },
-  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '65%' }
+  type:'doughnut', data:{labels:expLabels,datasets:[{data:expData,backgroundColor:expColors,borderWidth:0,hoverOffset:4}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'65%'}
 });
-const etot = expData.reduce((a, b) => a + b, 0);
-const expEl = document.getElementById('expLegend');
-expLabels.forEach((l, i) => {
-  const pct = Math.round(expData[i] / etot * 100), amt = Math.round(expData[i] / 10000);
-  expEl.innerHTML += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><span style="width:10px;height:10px;border-radius:2px;background:${expColors[i]};flex-shrink:0"></span><span style="color:var(--text2);">${l}</span><span style="margin-left:auto;font-weight:500;color:var(--text);">${pct}% (${amt}만원)</span></div>`;
+const etot=expData.reduce((a,b)=>a+b,0);
+expLabels.forEach((l,i) => {
+  const pct=Math.round(expData[i]/etot*100), amt=Math.round(expData[i]/10000);
+  document.getElementById('expLegend').innerHTML += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+    <span style="width:10px;height:10px;border-radius:2px;background:${expColors[i]};flex-shrink:0"></span>
+    <span style="color:var(--text2);">${l}</span>
+    <span style="margin-left:auto;font-weight:500;color:var(--text);">${pct}% (${amt}만원)</span></div>`;
 });
 
-/* ═══ 여행 시뮬레이터 ═══ */
+/* ═══ 여행 ═══ */
 function updateGoal() {
-  const g = parseInt(document.getElementById('goalSlider').value);
-  document.getElementById('goalVal').textContent = g.toLocaleString() + '만원';
-  document.getElementById('progressTarget').innerHTML = `목표 <strong>${g.toLocaleString()}만원</strong>`;
-  const cur = 539, pct = Math.min(Math.round(cur / g * 1000) / 10, 100);
-  document.getElementById('progressFill').style.width = pct + '%';
-  document.getElementById('progressNote').textContent = `${cur}만원 / ${g.toLocaleString()}만원 달성 · 약 ${pct}% · 목표까지 ${Math.max(g - cur, 0).toLocaleString()}만원 남음`;
+  const g=parseInt(document.getElementById('goalSlider').value);
+  document.getElementById('goalVal').textContent=g.toLocaleString()+'만원';
+  document.getElementById('progressTarget').innerHTML=`목표 <strong>${g.toLocaleString()}만원</strong>`;
+  const cur=539, pct=Math.min(Math.round(cur/g*1000)/10,100);
+  document.getElementById('progressFill').style.width=pct+'%';
+  document.getElementById('progressNote').textContent=`${cur}만원 / ${g.toLocaleString()}만원 달성 · 약 ${pct}% · 목표까지 ${Math.max(g-cur,0).toLocaleString()}만원 남음`;
 }
-let tChart = null;
+let tChart=null;
 function calcTravel() {
-  const pax = +document.getElementById('pax').value, air = +document.getElementById('airfare').value,
-        hot = +document.getElementById('hotel').value, mis = +document.getElementById('misc').value;
-  document.getElementById('paxVal').textContent = pax + '명';
-  document.getElementById('airVal').textContent = Math.round(air / 10000) + '만원';
-  document.getElementById('hotelVal').textContent = Math.round(hot / 10000) + '만원';
-  document.getElementById('miscVal').textContent = Math.round(mis / 10000) + '만원';
-  const total = (air + hot + mis) * pax, future = 300000 * 10, yearEnd = 5390000 + future, gap = yearEnd - total;
-  document.getElementById('rTotal').textContent = Math.round(total / 10000) + '만원';
-  document.getElementById('rFuture').textContent = Math.round(future / 10000) + '만원';
-  document.getElementById('rYearEnd').textContent = Math.round(yearEnd / 10000) + '만원';
-  document.getElementById('rGap').textContent = (gap >= 0 ? '+' : '') + Math.round(gap / 10000) + '만원 ' + (gap >= 0 ? '여유' : '부족');
-  document.getElementById('gapRow').className = 'res-row ' + (gap >= 0 ? 'surplus' : 'shortfall');
-  if (tChart) tChart.destroy();
-  tChart = new Chart(document.getElementById('travelChart'), {
-    type: 'bar',
-    data: { labels: ['항공권 합계', '숙박 합계', '식비/기타', '현재 잔액', '연말 예상', '총 필요'],
-      datasets: [{ data: [air * pax, hot * pax, mis * pax, 5390000, yearEnd, total],
-        backgroundColor: ['rgba(59,130,246,0.8)', 'rgba(16,185,129,0.75)', 'rgba(139,92,246,0.75)', 'rgba(245,158,11,0.75)', 'rgba(245,158,11,0.75)', 'rgba(239,68,68,0.75)'], borderWidth: 0 }] },
-    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
-      scales: { x: { ticks: { font: { size: 10 } } }, y: { ticks: { callback: v => Math.round(v / 10000) + '만' } } } }
-  });
+  const pax=+document.getElementById('pax').value,air=+document.getElementById('airfare').value,
+        hot=+document.getElementById('hotel').value,mis=+document.getElementById('misc').value;
+  document.getElementById('paxVal').textContent=pax+'명';
+  document.getElementById('airVal').textContent=Math.round(air/10000)+'만원';
+  document.getElementById('hotelVal').textContent=Math.round(hot/10000)+'만원';
+  document.getElementById('miscVal').textContent=Math.round(mis/10000)+'만원';
+  const total=(air+hot+mis)*pax,future=300000*10,yearEnd=5390000+future,gap=yearEnd-total;
+  document.getElementById('rTotal').textContent=Math.round(total/10000)+'만원';
+  document.getElementById('rFuture').textContent=Math.round(future/10000)+'만원';
+  document.getElementById('rYearEnd').textContent=Math.round(yearEnd/10000)+'만원';
+  document.getElementById('rGap').textContent=(gap>=0?'+':'')+Math.round(gap/10000)+'만원 '+(gap>=0?'여유':'부족');
+  document.getElementById('gapRow').className='res-row '+(gap>=0?'surplus':'shortfall');
+  if(tChart) tChart.destroy();
+  tChart=new Chart(document.getElementById('travelChart'),{type:'bar',
+    data:{labels:['항공권 합계','숙박 합계','식비/기타','현재 잔액','연말 예상','총 필요'],
+      datasets:[{data:[air*pax,hot*pax,mis*pax,5390000,yearEnd,total],
+        backgroundColor:['rgba(59,130,246,0.8)','rgba(16,185,129,0.75)','rgba(139,92,246,0.75)','rgba(245,158,11,0.75)','rgba(245,158,11,0.75)','rgba(239,68,68,0.75)'],borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{font:{size:10}}},y:{ticks:{callback:v=>Math.round(v/10000)+'만'}}}}});
 }
 calcTravel();
 
 /* ═══ 모임 기록 ═══ */
-const meetYearEl = document.getElementById('meetYear');
-YEARS.forEach(y => { const o = document.createElement('option'); o.value = y; o.textContent = y + '년'; if (y === 2026) o.selected = true; meetYearEl.appendChild(o); });
+const meetYearEl=document.getElementById('meetYear');
+YEARS.forEach(y=>{const o=document.createElement('option');o.value=y;o.textContent=y+'년';if(y===2026)o.selected=true;meetYearEl.appendChild(o);});
 
 async function loadMeetings() {
-  const mg = document.getElementById('meetingGrid');
-  const me = document.getElementById('meetingEmpty');
-  mg.innerHTML = '<div class="loading" style="grid-column:1/-1"><span class="spinner"></span>불러오는 중...</div>';
-  const { data, error } = await sb.from('meetings').select('*').order('year', { ascending: false }).order('created_at', { ascending: false });
-  mg.innerHTML = '';
-  if (error || !data || data.length === 0) { me.style.display = 'block'; return; }
-  me.style.display = 'none';
-  const tagColors = ['badge-blue', 'badge-green', 'badge-amber', 'badge-purple'];
-  data.forEach((m, i) => {
-    mg.innerHTML += `<div class="meeting-card">
-      <span class="badge ${tagColors[i % 4]}">${m.year}년</span>
+  const mg=document.getElementById('meetingGrid'), me=document.getElementById('meetingEmpty');
+  mg.innerHTML='<div class="loading" style="grid-column:1/-1"><span class="spinner"></span>불러오는 중...</div>';
+  const data=await dbGet('meetings','order=year.desc,created_at.desc');
+  mg.innerHTML='';
+  if(!data||data.length===0){me.style.display='block';return;}
+  me.style.display='none';
+  const tc=['badge-blue','badge-green','badge-amber','badge-purple'];
+  data.forEach((m,i)=>{
+    mg.innerHTML+=`<div class="meeting-card">
+      <span class="badge ${tc[i%4]}">${m.year}년</span>
       <div class="meeting-title">${m.title}</div>
-      <div class="meeting-meta"><span>📍 ${m.place || '미정'}</span><span>👥 ${m.members || '—'}</span></div>
-      ${m.note ? `<div class="meeting-note">${m.note}</div>` : ''}
+      <div class="meeting-meta"><span>📍 ${m.place||'미정'}</span><span>👥 ${m.members||'—'}</span></div>
+      ${m.note?`<div class="meeting-note">${m.note}</div>`:''}
       <button onclick="deleteMeeting(${m.id})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:11px;margin-top:8px;">🗑 삭제</button>
     </div>`;
   });
 }
-
 async function addMeeting() {
-  const year = parseInt(document.getElementById('meetYear').value);
-  const title = document.getElementById('meetTitle').value.trim();
-  const place = document.getElementById('meetPlace').value.trim();
-  const members_count = document.getElementById('meetMembers').value.trim();
-  const note = document.getElementById('meetNote').value.trim();
-  if (!title) { alert('모임명을 입력해주세요.'); return; }
-  await sb.from('meetings').insert({ year, title, place: place || '미정', members: members_count || '—', note });
-  ['meetTitle', 'meetPlace', 'meetMembers', 'meetNote'].forEach(id => document.getElementById(id).value = '');
+  const year=parseInt(document.getElementById('meetYear').value);
+  const title=document.getElementById('meetTitle').value.trim();
+  const place=document.getElementById('meetPlace').value.trim();
+  const mems=document.getElementById('meetMembers').value.trim();
+  const note=document.getElementById('meetNote').value.trim();
+  if(!title){alert('모임명을 입력해주세요.');return;}
+  await dbPost('meetings',{year,title,place:place||'미정',members:mems||'—',note});
+  ['meetTitle','meetPlace','meetMembers','meetNote'].forEach(id=>document.getElementById(id).value='');
   loadMeetings();
 }
-
-async function deleteMeeting(id) {
-  if (!confirm('삭제할까요?')) return;
-  await sb.from('meetings').delete().eq('id', id);
+async function deleteMeeting(id){
+  if(!confirm('삭제할까요?'))return;
+  await dbDelete('meetings',id);
   loadMeetings();
 }
-
 loadMeetings();
 
-/* ═══ NAV 스크롤 ═══ */
-const navLinks = document.querySelectorAll('#main-nav a');
-const obs = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      navLinks.forEach(a => a.classList.remove('active'));
-      const l = document.querySelector(`#main-nav a[href="#${e.target.id}"]`);
-      if (l) l.classList.add('active');
-    }
-  });
-}, { threshold: 0.3 });
-document.querySelectorAll('section[id]').forEach(s => obs.observe(s));
+/* ═══ NAV ═══ */
+const navLinks=document.querySelectorAll('#main-nav a');
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){navLinks.forEach(a=>a.classList.remove('active'));const l=document.querySelector(`#main-nav a[href="#${e.target.id}"]`);if(l)l.classList.add('active');}});
+},{threshold:0.3});
+document.querySelectorAll('section[id]').forEach(s=>obs.observe(s));
 </script>
 </body>
 </html>
