@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>범우회</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --ink2: #2d2d4e;
+    --gold: #c9a84c;
+    --gold-light: #f0d080;
+    --cream: #faf8f2;
+    --cream2: #f2ede0;
+    --muted: #7a7a8a;
+    --border: rgba(201,168,76,0.25);
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--ink);
+    color: var(--cream);
+    text-align: center;
+    padding: 4rem 1rem 3rem;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.15) 0%, transparent 70%);
+  }
+  .header-ornament {
+    font-size: 13px;
+    letter-spacing: 0.35em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    position: relative;
+  }
+  .header-ornament::before,
+  .header-ornament::after {
+    content: '─── ';
+    opacity: 0.5;
+  }
+  .header-ornament::after { content: ' ───'; }
+  h1.site-title {
+    font-family: 'Noto Serif KR', serif;
+    font-size: clamp(2.8rem, 8vw, 5rem);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--cream);
+    position: relative;
+    margin-bottom: 0.5rem;
+  }
+  .site-subtitle {
+    font-size: 14px;
+    color: rgba(250,248,242,0.55);
+    letter-spacing: 0.15em;
+    position: relative;
+  }
+  .gold-line {
+    width: 60px; height: 1px;
+    background: var(--gold);
+    margin: 1.5rem auto;
+    position: relative;
+  }
+
+  /* ── NAV ── */
+  nav {
+    background: var(--ink2);
+    position: sticky; top: 0; z-index: 100;
+    display: flex; justify-content: center; flex-wrap: wrap;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+  }
+  nav a {
+    color: rgba(250,248,242,0.6);
+    text-decoration: none;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    padding: 14px 22px;
+    transition: color .2s, background .2s;
+    border-bottom: 2px solid transparent;
+  }
+  nav a:hover { color: var(--gold); background: rgba(201,168,76,0.06); }
+  nav a.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 900px; margin: 0 auto; padding: 0 1.5rem; }
+  section { padding: 4rem 0; }
+  section:nth-child(even) { background: var(--cream2); }
+
+  .section-label {
+    font-size: 11px;
+    letter-spacing: 0.4em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+  .section-title {
+    font-family: 'Noto Serif KR', serif;
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 2rem;
+  }
+
+  /* ── METRIC CARDS ── */
+  .metric-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+    margin-bottom: 2.5rem;
+  }
+  .metric-card {
+    background: var(--ink);
+    color: var(--cream);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.25rem 1rem;
+    border: 1px solid rgba(201,168,76,0.2);
+    position: relative;
+    overflow: hidden;
+  }
+  .metric-card::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+    background: var(--gold);
+  }
+  .metric-label { font-size: 11px; letter-spacing: 0.1em; color: rgba(250,248,242,0.5); margin-bottom: 8px; }
+  .metric-value { font-size: 26px; font-weight: 700; color: var(--gold-light); line-height: 1; }
+  .metric-sub { font-size: 11px; color: rgba(250,248,242,0.4); margin-top: 6px; }
+
+  /* ── CARD ── */
+  .card {
+    background: #fff;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .card h3 {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 1.25rem;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .chart-wrap { position: relative; width: 100%; }
+
+  /* ── TABLE ── */
+  .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .data-table th {
+    text-align: left; color: var(--muted); font-weight: 400;
+    font-size: 11px; letter-spacing: 0.08em;
+    padding: 8px 10px; border-bottom: 1px solid var(--border);
+  }
+  .data-table td { padding: 9px 10px; border-bottom: 1px solid rgba(201,168,76,0.1); color: var(--ink); }
+  .data-table tr:last-child td { border-bottom: none; }
+  .badge {
+    display: inline-block; font-size: 11px; padding: 2px 8px;
+    border-radius: 20px; letter-spacing: 0.05em;
+  }
+  .badge-ok { background: #e8f5e9; color: #2e7d32; }
+  .badge-chair { background: #e3f2fd; color: #1565c0; }
+  .badge-sec { background: #fff8e1; color: #e65100; }
+
+  /* ── 회칙 ── */
+  .rule-block { margin-bottom: 1.5rem; }
+  .rule-chapter {
+    font-size: 11px; letter-spacing: 0.2em; color: var(--gold);
+    text-transform: uppercase; margin-bottom: 8px;
+  }
+  .rule-item {
+    font-size: 13px; color: #444; padding: 6px 0 6px 14px;
+    border-left: 2px solid var(--border); margin-bottom: 4px; line-height: 1.6;
+  }
+  .rule-highlight {
+    background: #fff8e1; color: #b45309;
+    padding: 1px 7px; border-radius: 4px; font-size: 12px; margin-left: 6px;
+  }
+
+  /* ── 경조사 ── */
+  .event-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+  .event-item {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    transition: box-shadow .2s;
+  }
+  .event-item:hover { box-shadow: 0 4px 20px rgba(201,168,76,0.15); }
+  .event-type { font-size: 11px; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 4px; }
+  .event-name { font-size: 14px; font-weight: 500; color: var(--ink); }
+  .event-amount { font-size: 17px; font-weight: 700; color: var(--gold); margin-top: 6px; }
+  .event-flower { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  /* ── 여행 시뮬레이터 ── */
+  .sim-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  @media (max-width: 600px) { .sim-grid { grid-template-columns: 1fr; } }
+  .slider-group { margin-bottom: 16px; }
+  .slider-label {
+    display: flex; justify-content: space-between;
+    font-size: 13px; color: var(--muted); margin-bottom: 6px;
+  }
+  .slider-label span:last-child { font-weight: 500; color: var(--ink); }
+  input[type=range] {
+    width: 100%; height: 4px; appearance: none;
+    background: var(--cream2); border-radius: 2px; outline: none;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    appearance: none; width: 16px; height: 16px;
+    background: var(--gold); border-radius: 50%; cursor: pointer;
+  }
+  .result-panel {
+    background: var(--ink);
+    color: var(--cream);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+  }
+  .res-row { display: flex; justify-content: space-between; font-size: 13px; padding: 5px 0; color: rgba(250,248,242,0.65); }
+  .res-row.total { border-top: 1px solid rgba(201,168,76,0.3); margin-top: 8px; padding-top: 12px; font-size: 15px; font-weight: 500; color: var(--cream); }
+  .res-row.surplus { color: #a5d6a7; font-weight: 500; }
+  .res-row.shortfall { color: #ef9a9a; font-weight: 500; }
+
+  /* ── 의결 ── */
+  .vote-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  @media (max-width: 550px) { .vote-grid { grid-template-columns: 1fr; } }
+  .vote-card {
+    border-radius: var(--radius);
+    padding: 1.25rem 1rem;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+  .vote-pct { font-size: 2rem; font-weight: 700; color: var(--gold); line-height: 1.1; }
+  .vote-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .vote-example { font-size: 11px; color: var(--muted); margin-top: 8px; line-height: 1.5; }
+
+  /* ── LEGEND ── */
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 10px; font-size: 12px; color: var(--muted); }
+  .leg-dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-right: 4px; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--ink);
+    color: rgba(250,248,242,0.35);
+    text-align: center;
+    padding: 2.5rem 1rem;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+  }
+  footer .gold-text { color: var(--gold); }
+
+  /* ── MEMBERS PHOTO GRID ── */
+  .member-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+  .member-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    text-align: center;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .member-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(201,168,76,0.12); }
+  .avatar {
+    width: 52px; height: 52px; border-radius: 50%;
+    background: var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Noto Serif KR', serif;
+    font-size: 15px; font-weight: 700; color: var(--gold-light);
+    margin: 0 auto 10px;
+  }
+  .member-name { font-size: 14px; font-weight: 500; color: var(--ink); }
+  .member-role { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .member-fee { font-size: 11px; color: #2e7d32; margin-top: 4px; }
+
+  @media (max-width: 600px) {
+    section { padding: 2.5rem 0; }
+    nav a { padding: 12px 14px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-ornament">Since 중학교 동창</div>
+  <h1 class="site-title">범우회</h1>
+  <div class="gold-line"></div>
+  <p class="site-subtitle">회원 10명 · 친목 계모임 · 2026</p>
+</header>
+
+<nav id="main-nav">
+  <a href="#finance" class="active">자금 현황</a>
+  <a href="#travel">여행 계획</a>
+  <a href="#members">구성원</a>
+  <a href="#rules">회칙</a>
+  <a href="#events">경조사</a>
+</nav>
+
+<!-- ── 자금 현황 ── -->
+<section id="finance">
+  <div class="container">
+    <p class="section-label">Finance</p>
+    <h2 class="section-title">자금 현황</h2>
+
+    <div class="metric-grid">
+      <div class="metric-card">
+        <div class="metric-label">현재 총 잔액</div>
+        <div class="metric-value">517만원</div>
+        <div class="metric-sub">계좌 + 세이프티박스</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">2026 납입 누계</div>
+        <div class="metric-value">130만원</div>
+        <div class="metric-sub">1~2월 기준</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">2025 총 수입</div>
+        <div class="metric-value">532만원</div>
+        <div class="metric-sub">회비 + 이자</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">2025 총 지출</div>
+        <div class="metric-value">344만원</div>
+        <div class="metric-sub">모임 · 경조사</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>2025년 월별 수입 / 지출</h3>
+      <div class="legend">
+        <span><span class="leg-dot" style="background:#c9a84c"></span>수입</span>
+        <span><span class="leg-dot" style="background:#c0392b"></span>지출</span>
+      </div>
+      <div class="chart-wrap" style="height:240px">
+        <canvas id="incomeExpChart" role="img" aria-label="2025년 월별 수입 지출 막대차트"></canvas>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>2025 vs 2026 상반기 누계 비교</h3>
+      <div class="legend">
+        <span><span class="leg-dot" style="background:#5DCAA5"></span>2025년</span>
+        <span><span class="leg-dot" style="background:#7F77DD; border:1px dashed #7F77DD"></span>2026년</span>
+      </div>
+      <div class="chart-wrap" style="height:200px">
+        <canvas id="yearCompChart" role="img" aria-label="연도별 상반기 누계 비교 라인차트"></canvas>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>2025년 지출 항목 분류</h3>
+      <div style="display:flex;align-items:center;gap:2rem;flex-wrap:wrap;">
+        <div class="chart-wrap" style="height:200px;flex:1;min-width:150px">
+          <canvas id="expCatChart" role="img" aria-label="지출 항목별 도넛 차트"></canvas>
+        </div>
+        <div id="expLegend" style="flex:1;min-width:140px;font-size:13px;"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>2026년 회원별 납부 현황 (1~2월)</h3>
+      <div class="chart-wrap" style="height:200px">
+        <canvas id="fee2026Chart" role="img" aria-label="2026년 회원별 납부 막대차트"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 여행 계획 ── -->
+<section id="travel">
+  <div class="container">
+    <p class="section-label">Travel Budget</p>
+    <h2 class="section-title">해외 여행 예산 시뮬레이터</h2>
+    <div class="sim-grid">
+      <div>
+        <div class="card" style="margin-bottom:0">
+          <h3>조건 설정</h3>
+          <div class="slider-group">
+            <div class="slider-label"><span>참여 인원</span><span id="paxVal">9명</span></div>
+            <input type="range" id="pax" min="4" max="11" value="9" step="1" oninput="calcTravel()">
+          </div>
+          <div class="slider-group">
+            <div class="slider-label"><span>1인 항공권</span><span id="airVal">60만원</span></div>
+            <input type="range" id="airfare" min="200000" max="1500000" value="600000" step="50000" oninput="calcTravel()">
+          </div>
+          <div class="slider-group">
+            <div class="slider-label"><span>1인 숙박 (전체)</span><span id="hotelVal">20만원</span></div>
+            <input type="range" id="hotel" min="50000" max="500000" value="200000" step="10000" oninput="calcTravel()">
+          </div>
+          <div class="slider-group">
+            <div class="slider-label"><span>1인 식비 / 기타</span><span id="miscVal">15만원</span></div>
+            <input type="range" id="misc" min="50000" max="400000" value="150000" step="10000" oninput="calcTravel()">
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="result-panel">
+          <div class="res-row"><span>총 필요 예산</span><span id="rTotal">—</span></div>
+          <div class="res-row"><span>현재 잔액</span><span>517만원</span></div>
+          <div class="res-row"><span>연말까지 추가 납입 예상</span><span id="rFuture">—</span></div>
+          <div class="res-row total"><span>연말 예상 잔액</span><span id="rYearEnd">—</span></div>
+          <div class="res-row" id="gapRow"><span>여행 후 잔액</span><span id="rGap">—</span></div>
+        </div>
+        <p style="font-size:11px;color:var(--muted);margin-top:10px;line-height:1.6;">
+          ※ 현재 잔액 517만원 기준<br>
+          ※ 월 평균 납입 30만원 × 잔여 10개월 반영
+        </p>
+      </div>
+    </div>
+    <div class="card" style="margin-top:1.5rem">
+      <h3>예산 구성 비교</h3>
+      <div class="chart-wrap" style="height:240px">
+        <canvas id="travelChart" role="img" aria-label="여행 예산 구성 비교 차트"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 구성원 ── -->
+<section id="members">
+  <div class="container">
+    <p class="section-label">Members</p>
+    <h2 class="section-title">구성원</h2>
+    <div class="member-grid" id="memberGrid"></div>
+    <div class="card" style="margin-top:1.5rem">
+      <h3>2025년 개인별 납부 내역</h3>
+      <table class="data-table">
+        <thead>
+          <tr><th>이름</th><th>역할</th><th>청구</th><th>납부</th><th>미납</th></tr>
+        </thead>
+        <tbody id="memberTable"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ── 회칙 ── -->
+<section id="rules">
+  <div class="container">
+    <p class="section-label">Rules</p>
+    <h2 class="section-title">회칙</h2>
+    <div class="vote-grid" style="margin-bottom:1.5rem">
+      <div class="vote-card">
+        <div class="vote-pct">70%</div>
+        <div class="vote-label">중대 사안</div>
+        <div class="vote-example">회비 인상, 신규 회원 가입, 운영 규칙 변경</div>
+      </div>
+      <div class="vote-card">
+        <div class="vote-pct">60%</div>
+        <div class="vote-label">중간 사안</div>
+        <div class="vote-example">해외 모임, 1박 2일 특별 모임, 회계 방식 조정</div>
+      </div>
+      <div class="vote-card">
+        <div class="vote-pct">50%</div>
+        <div class="vote-label">일반 사안</div>
+        <div class="vote-example">일정 조율, 장소 선택, 단순 활동 계획</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="rule-block">
+        <div class="rule-chapter">1장 총칙</div>
+        <div class="rule-item">명칭: 범우회 · 목적: 회원 상호간 친목</div>
+      </div>
+      <div class="rule-block">
+        <div class="rule-chapter">2장 임원</div>
+        <div class="rule-item">회장 1명 (김주성) · 총무 1명 (박현)</div>
+        <div class="rule-item">임기 1년, 연임 가능 · 매년 연말 투표 선임</div>
+      </div>
+      <div class="rule-block">
+        <div class="rule-chapter">3장 모임</div>
+        <div class="rule-item">정기모임: 하계·동계 각 1회 — 회원 1/2 동의 없으면 취소</div>
+        <div class="rule-item">임시모임: 회장 재량 또는 정원 1/2 이상 요청 시</div>
+      </div>
+      <div class="rule-block">
+        <div class="rule-chapter">7장 재정</div>
+        <div class="rule-item">월 회비 40,000원 <span class="rule-highlight">매월 15일까지 납부</span></div>
+        <div class="rule-item">회장 30,000원 · 총무 20,000원</div>
+        <div class="rule-item">연체 벌금 10,000원 / 미납 시 경조사 지급액에서 차감</div>
+        <div class="rule-item">정기모임 최대 200만원 · 임시모임 최대 50만원</div>
+        <div class="rule-item">차량 지원: 4인당 1대 · 주유·도로비 실비 (개인차량 제외)</div>
+      </div>
+      <div class="rule-block" style="margin-bottom:0">
+        <div class="rule-chapter">5장 회원 관리</div>
+        <div class="rule-item">신입: 기존 100% 찬성 + 가입금 (1년치 회비÷인원, 최저 50만원)</div>
+        <div class="rule-item">탈퇴 시 납부 회비 반환 없음</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 경조사 ── -->
+<section id="events">
+  <div class="container">
+    <p class="section-label">Events</p>
+    <h2 class="section-title">경조사 기준</h2>
+    <div class="event-grid">
+      <div class="event-item">
+        <div class="event-type">결혼</div>
+        <div class="event-name">본인 결혼</div>
+        <div class="event-amount">500,000원</div>
+        <div class="event-flower">+ 화환</div>
+      </div>
+      <div class="event-item">
+        <div class="event-type">개업</div>
+        <div class="event-name">본인</div>
+        <div class="event-amount">화환만</div>
+        <div class="event-flower">+ 화환</div>
+      </div>
+      <div class="event-item">
+        <div class="event-type">돌잔치</div>
+        <div class="event-name">자녀</div>
+        <div class="event-amount">100,000원</div>
+        <div class="event-flower">화환 없음</div>
+      </div>
+      <div class="event-item">
+        <div class="event-type">출산</div>
+        <div class="event-name">자녀 출산</div>
+        <div class="event-amount">100,000원</div>
+        <div class="event-flower">화환 없음</div>
+      </div>
+      <div class="event-item">
+        <div class="event-type">부의 (본인·배우자·부모·자녀)</div>
+        <div class="event-name">장례</div>
+        <div class="event-amount">1,000,000원</div>
+        <div class="event-flower">+ 화환</div>
+      </div>
+      <div class="event-item">
+        <div class="event-type">부의 (처부모)</div>
+        <div class="event-name">장례</div>
+        <div class="event-amount">500,000원</div>
+        <div class="event-flower">+ 화환</div>
+      </div>
+      <div class="event-item">
+        <div class="event-type">칠순</div>
+        <div class="event-name">부모</div>
+        <div class="event-amount">100,000원</div>
+        <div class="event-flower">화환 없음</div>
+      </div>
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin-top:1rem;">
+      ※ 재혼도 결혼식 진행 시 포함 · 출산·돌은 모든 자녀 해당
+    </p>
+  </div>
+</section>
+
+<footer>
+  <div class="gold-line"></div>
+  <p><span class="gold-text">범우회</span> &nbsp;·&nbsp; 중학교 동창 친목 모임</p>
+  <p style="margin-top:6px">입금 계좌: 카카오뱅크 3333-35-1745630</p>
+</footer>
+
+<script>
+/* ── 데이터 ── */
+const months = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+const income2025 = [1134743,440000,480065,530769,160097,240133,413008,341667,212374,290000,290000,430000];
+const expense2025 = [100000,190000,487900,0,0,0,2090146,0,578500,0,0,0];
+const members = [
+  {name:'김상만',role:'정회원',charge:480000,paid:480000},
+  {name:'김주성',role:'회장',charge:390000,paid:390000},
+  {name:'김찬성',role:'정회원',charge:480000,paid:480000},
+  {name:'김태우',role:'정회원',charge:480000,paid:480000},
+  {name:'김태환',role:'정회원',charge:480000,paid:480000},
+  {name:'박성준',role:'정회원',charge:480000,paid:480000},
+  {name:'박현',role:'총무',charge:300000,paid:300000},
+  {name:'유병욱',role:'정회원',charge:480000,paid:480000},
+  {name:'장영익',role:'정회원',charge:450000,paid:450000},
+  {name:'정민기',role:'정회원',charge:480000,paid:480000},
+  {name:'황재철',role:'전총무',charge:420000,paid:420000},
+];
+const fees2026 = [80000,80000,480000,80000,80000,240000,80000,60000,80000,40000];
+const memberNames10 = ['김상만','김주성','김찬성','김태환','박성준','박현','유병욱','장영익','정민기','황재철'];
+
+/* ── 차트 공통 설정 ── */
+Chart.defaults.font.family = "'Noto Sans KR', sans-serif";
+Chart.defaults.color = '#7a7a8a';
+
+/* ── 수입/지출 ── */
+new Chart(document.getElementById('incomeExpChart'),{
+  type:'bar',
+  data:{labels:months,datasets:[
+    {label:'수입',data:income2025,backgroundColor:'rgba(201,168,76,0.75)'},
+    {label:'지출',data:expense2025,backgroundColor:'rgba(192,57,43,0.7)'}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    scales:{x:{ticks:{autoSkip:false,maxRotation:0,font:{size:10}}},
+            y:{ticks:{callback:v=>Math.round(v/10000)+'만'}}}}
+});
+
+/* ── 연도 비교 ── */
+const cum2025=[],cum2026=[1164450/10000,1164520/10000,null,null,null,null];
+let s=0;
+income2025.slice(0,6).forEach(v=>{s+=v;cum2025.push(Math.round(s/10000));});
+new Chart(document.getElementById('yearCompChart'),{
+  type:'line',
+  data:{labels:['1월','2월','3월','4월','5월','6월'],datasets:[
+    {label:'2025 누계',data:cum2025,borderColor:'#5DCAA5',backgroundColor:'rgba(93,202,165,0.08)',fill:true,tension:.35,pointRadius:4,pointBackgroundColor:'#5DCAA5'},
+    {label:'2026 누계',data:cum2026,borderColor:'#7F77DD',backgroundColor:'rgba(127,119,221,0.08)',fill:true,tension:.35,borderDash:[6,3],pointRadius:4,pointBackgroundColor:'#7F77DD'}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    scales:{y:{ticks:{callback:v=>v+'만'}}}}
+});
+
+/* ── 지출 도넛 ── */
+const expLabels=['여름여행','겨울정기모임','경조사','임시모임'];
+const expData=[999060,930026,290000,487900];
+const expColors=['#c9a84c','#3d7ebf','#c0392b','#5daa8f'];
+new Chart(document.getElementById('expCatChart'),{
+  type:'doughnut',
+  data:{labels:expLabels,datasets:[{data:expData,backgroundColor:expColors,borderWidth:0,hoverOffset:4}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'65%'}
+});
+const tot=expData.reduce((a,b)=>a+b,0);
+const el=document.getElementById('expLegend');
+expLabels.forEach((l,i)=>{
+  const pct=Math.round(expData[i]/tot*100);
+  el.innerHTML+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+    <span style="width:10px;height:10px;border-radius:2px;background:${expColors[i]};flex-shrink:0"></span>
+    <span style="color:#444;font-size:13px;">${l}</span>
+    <span style="margin-left:auto;font-weight:500;color:#1a1a2e;">${pct}%</span>
+  </div>`;
+});
+
+/* ── 2026 납부 ── */
+new Chart(document.getElementById('fee2026Chart'),{
+  type:'bar',
+  data:{labels:memberNames10,datasets:[{label:'납부액',data:fees2026,backgroundColor:'rgba(201,168,76,0.7)'}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    scales:{x:{ticks:{maxRotation:30,font:{size:10}}},
+            y:{ticks:{callback:v=>Math.round(v/10000)+'만'}}}}
+});
+
+/* ── 구성원 카드 ── */
+const grid=document.getElementById('memberGrid');
+const tBody=document.getElementById('memberTable');
+members.forEach(m=>{
+  const init=m.name[0];
+  const roleClass=m.role==='회장'?'badge-chair':m.role==='총무'||m.role==='전총무'?'badge-sec':'badge-ok';
+  grid.innerHTML+=`<div class="member-card">
+    <div class="avatar">${init}</div>
+    <div class="member-name">${m.name}</div>
+    <div class="member-role">${m.role}</div>
+    <div class="member-fee">✓ 완납</div>
+  </div>`;
+  const diff=m.paid-m.charge;
+  tBody.innerHTML+=`<tr>
+    <td>${m.name}</td>
+    <td><span class="badge ${roleClass}">${m.role}</span></td>
+    <td>${m.charge.toLocaleString()}원</td>
+    <td>${m.paid.toLocaleString()}원</td>
+    <td style="color:${diff>=0?'#2e7d32':'#c0392b'}">${diff===0?'0원':(diff>0?'+':'')+diff.toLocaleString()+'원'}</td>
+  </tr>`;
+});
+
+/* ── 여행 시뮬레이터 ── */
+let tChart=null;
+function calcTravel(){
+  const pax=+document.getElementById('pax').value;
+  const air=+document.getElementById('airfare').value;
+  const hot=+document.getElementById('hotel').value;
+  const mis=+document.getElementById('misc').value;
+  document.getElementById('paxVal').textContent=pax+'명';
+  document.getElementById('airVal').textContent=Math.round(air/10000)+'만원';
+  document.getElementById('hotelVal').textContent=Math.round(hot/10000)+'만원';
+  document.getElementById('miscVal').textContent=Math.round(mis/10000)+'만원';
+  const total=(air+hot+mis)*pax;
+  const futureIncome=300000*10;
+  const yearEnd=5177625+futureIncome;
+  const gap=yearEnd-total;
+  document.getElementById('rTotal').textContent=Math.round(total/10000)+'만원';
+  document.getElementById('rFuture').textContent=Math.round(futureIncome/10000)+'만원';
+  document.getElementById('rYearEnd').textContent=Math.round(yearEnd/10000)+'만원';
+  const gapEl=document.getElementById('rGap');
+  const gapRow=document.getElementById('gapRow');
+  gapEl.textContent=(gap>=0?'+':'')+Math.round(gap/10000)+'만원 '+(gap>=0?'여유':'부족');
+  gapRow.className='res-row '+(gap>=0?'surplus':'shortfall');
+
+  if(tChart) tChart.destroy();
+  tChart=new Chart(document.getElementById('travelChart'),{
+    type:'bar',
+    data:{
+      labels:['항공권 합계','숙박 합계','식비/기타 합계','현재 잔액','연말 예상 잔액','총 필요 예산'],
+      datasets:[{
+        data:[air*pax,hot*pax,mis*pax,5177625,yearEnd,total],
+        backgroundColor:['rgba(201,168,76,0.75)','rgba(93,202,165,0.7)','rgba(127,119,221,0.7)','rgba(61,126,191,0.65)','rgba(61,126,191,0.65)','rgba(192,57,43,0.7)'],
+        borderWidth:0
+      }]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{font:{size:10}}},y:{ticks:{callback:v=>Math.round(v/10000)+'만'}}}}
+  });
+}
+calcTravel();
+
+/* ── NAV active on scroll ── */
+const sections=document.querySelectorAll('section[id]');
+const navLinks=document.querySelectorAll('#main-nav a');
+const observer=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      navLinks.forEach(a=>a.classList.remove('active'));
+      const link=document.querySelector(`#main-nav a[href="#${e.target.id}"]`);
+      if(link) link.classList.add('active');
+    }
+  });
+},{threshold:0.4});
+sections.forEach(s=>observer.observe(s));
+</script>
+</body>
+</html>
