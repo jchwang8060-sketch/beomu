@@ -6,721 +6,765 @@
 <title>범우회</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  :root {
-    --ink: #1a1a2e;
-    --ink2: #2d2d4e;
-    --gold: #c9a84c;
-    --gold-light: #f0d080;
-    --cream: #faf8f2;
-    --cream2: #f2ede0;
-    --muted: #7a7a8a;
-    --border: rgba(201,168,76,0.25);
-    --radius: 12px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; }
-  body {
-    background: var(--cream);
-    color: var(--ink);
-    font-family: 'Noto Sans KR', sans-serif;
-    font-weight: 300;
-    line-height: 1.7;
-  }
+:root {
+  --primary: #3b82f6;
+  --primary-light: #eff6ff;
+  --primary-dark: #1d4ed8;
+  --accent: #f59e0b;
+  --green: #10b981;
+  --red: #ef4444;
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --border: #e2e8f0;
+  --text: #1e293b;
+  --text2: #475569;
+  --text3: #94a3b8;
+  --radius: 14px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: 'Noto Sans KR', sans-serif; font-weight: 300; line-height: 1.7; }
 
-  /* ── HEADER ── */
-  header {
-    background: var(--ink);
-    color: var(--cream);
-    text-align: center;
-    padding: 4rem 1rem 3rem;
-    position: relative;
-    overflow: hidden;
-  }
-  header::before {
-    content: '';
-    position: absolute; inset: 0;
-    background: radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.15) 0%, transparent 70%);
-  }
-  .header-ornament {
-    font-size: 13px;
-    letter-spacing: 0.35em;
-    color: var(--gold);
-    text-transform: uppercase;
-    margin-bottom: 1rem;
-    position: relative;
-  }
-  .header-ornament::before,
-  .header-ornament::after {
-    content: '─── ';
-    opacity: 0.5;
-  }
-  .header-ornament::after { content: ' ───'; }
-  h1.site-title {
-    font-family: 'Noto Serif KR', serif;
-    font-size: clamp(2.8rem, 8vw, 5rem);
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    color: var(--cream);
-    position: relative;
-    margin-bottom: 0.5rem;
-  }
-  .site-subtitle {
-    font-size: 14px;
-    color: rgba(250,248,242,0.55);
-    letter-spacing: 0.15em;
-    position: relative;
-  }
-  .gold-line {
-    width: 60px; height: 1px;
-    background: var(--gold);
-    margin: 1.5rem auto;
-    position: relative;
-  }
+header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; text-align: center; padding: 3.5rem 1rem 2.5rem; position: relative; overflow: hidden; }
+header::before { content: ''; position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/svg%3E"); }
+.header-tag { font-size: 12px; letter-spacing: 0.3em; color: rgba(255,255,255,0.7); margin-bottom: 0.75rem; position: relative; }
+h1.site-title { font-family: 'Gowun Dodum', sans-serif; font-size: clamp(2.2rem, 7vw, 4rem); color: #fff; position: relative; margin-bottom: 0.4rem; }
+.site-subtitle { font-size: 13px; color: rgba(255,255,255,0.65); position: relative; letter-spacing: 0.1em; }
+.header-officers { display: flex; justify-content: center; gap: 2rem; margin-top: 1.5rem; position: relative; flex-wrap: wrap; }
+.officer-pill { background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3); border-radius: 30px; padding: 6px 18px; font-size: 13px; color: #fff; }
+.officer-pill span { font-weight: 500; }
 
-  /* ── NAV ── */
-  nav {
-    background: var(--ink2);
-    position: sticky; top: 0; z-index: 100;
-    display: flex; justify-content: center; flex-wrap: wrap;
-    gap: 0;
-    border-bottom: 1px solid var(--border);
-  }
-  nav a {
-    color: rgba(250,248,242,0.6);
-    text-decoration: none;
-    font-size: 13px;
-    letter-spacing: 0.1em;
-    padding: 14px 22px;
-    transition: color .2s, background .2s;
-    border-bottom: 2px solid transparent;
-  }
-  nav a:hover { color: var(--gold); background: rgba(201,168,76,0.06); }
-  nav a.active { color: var(--gold); border-bottom-color: var(--gold); }
+nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; display: flex; justify-content: center; flex-wrap: wrap; box-shadow: var(--shadow); }
+nav a { color: var(--text2); text-decoration: none; font-size: 13px; padding: 13px 15px; border-bottom: 2px solid transparent; transition: all .2s; white-space: nowrap; }
+nav a:hover { color: var(--primary); }
+nav a.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 500; }
 
-  /* ── LAYOUT ── */
-  .container { max-width: 900px; margin: 0 auto; padding: 0 1.5rem; }
-  section { padding: 4rem 0; }
-  section:nth-child(even) { background: var(--cream2); }
+.container { max-width: 920px; margin: 0 auto; padding: 0 1.25rem; }
+section { padding: 3rem 0; }
+section:nth-child(even) { background: #f1f5f9; }
+.section-tag { font-size: 11px; letter-spacing: 0.3em; color: var(--primary); text-transform: uppercase; margin-bottom: 4px; font-weight: 500; }
+.section-title { font-family: 'Gowun Dodum', sans-serif; font-size: clamp(1.4rem, 4vw, 1.9rem); color: var(--text); margin-bottom: 1.75rem; }
 
-  .section-label {
-    font-size: 11px;
-    letter-spacing: 0.4em;
-    color: var(--gold);
-    text-transform: uppercase;
-    margin-bottom: 0.5rem;
-  }
-  .section-title {
-    font-family: 'Noto Serif KR', serif;
-    font-size: clamp(1.5rem, 4vw, 2rem);
-    font-weight: 600;
-    color: var(--ink);
-    margin-bottom: 2rem;
-  }
+.card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 1.25rem; margin-bottom: 1.25rem; box-shadow: var(--shadow); }
+.card-title { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 1rem; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.chart-wrap { position: relative; width: 100%; }
 
-  /* ── METRIC CARDS ── */
-  .metric-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 16px;
-    margin-bottom: 2.5rem;
-  }
-  .metric-card {
-    background: var(--ink);
-    color: var(--cream);
-    border-radius: var(--radius);
-    padding: 1.25rem 1.25rem 1rem;
-    border: 1px solid rgba(201,168,76,0.2);
-    position: relative;
-    overflow: hidden;
-  }
-  .metric-card::after {
-    content: '';
-    position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
-    background: var(--gold);
-  }
-  .metric-label { font-size: 11px; letter-spacing: 0.1em; color: rgba(250,248,242,0.5); margin-bottom: 8px; }
-  .metric-value { font-size: 26px; font-weight: 700; color: var(--gold-light); line-height: 1; }
-  .metric-sub { font-size: 11px; color: rgba(250,248,242,0.4); margin-top: 6px; }
+.metric-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
+.metric { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 1rem 1.1rem; box-shadow: var(--shadow); }
+.metric-label { font-size: 11px; color: var(--text3); margin-bottom: 4px; }
+.metric-value { font-size: 22px; font-weight: 700; }
+.metric-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.metric.blue .metric-value { color: var(--primary); }
+.metric.green .metric-value { color: var(--green); }
 
-  /* ── CARD ── */
-  .card {
-    background: #fff;
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-  }
-  .card h3 {
-    font-family: 'Noto Serif KR', serif;
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--ink);
-    margin-bottom: 1.25rem;
-    padding-bottom: 10px;
-    border-bottom: 1px solid var(--border);
-  }
-  .chart-wrap { position: relative; width: 100%; }
+.badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 20px; }
+.badge-blue   { background: #dbeafe; color: #1d4ed8; }
+.badge-amber  { background: #fef3c7; color: #b45309; }
+.badge-green  { background: #d1fae5; color: #065f46; }
+.badge-purple { background: #ede9fe; color: #5b21b6; }
+.badge-gray   { background: #f1f5f9; color: #475569; }
 
-  /* ── TABLE ── */
-  .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .data-table th {
-    text-align: left; color: var(--muted); font-weight: 400;
-    font-size: 11px; letter-spacing: 0.08em;
-    padding: 8px 10px; border-bottom: 1px solid var(--border);
-  }
-  .data-table td { padding: 9px 10px; border-bottom: 1px solid rgba(201,168,76,0.1); color: var(--ink); }
-  .data-table tr:last-child td { border-bottom: none; }
-  .badge {
-    display: inline-block; font-size: 11px; padding: 2px 8px;
-    border-radius: 20px; letter-spacing: 0.05em;
-  }
-  .badge-ok { background: #e8f5e9; color: #2e7d32; }
-  .badge-chair { background: #e3f2fd; color: #1565c0; }
-  .badge-sec { background: #fff8e1; color: #e65100; }
+/* 구성원 */
+.member-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+.member-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 0.75rem; text-align: center; transition: transform .15s, box-shadow .15s; box-shadow: var(--shadow); }
+.member-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.avatar { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; margin: 0 auto 8px; color: #fff; }
+.av-blue   { background: linear-gradient(135deg,#3b82f6,#1d4ed8); }
+.av-amber  { background: linear-gradient(135deg,#f59e0b,#d97706); }
+.av-purple { background: linear-gradient(135deg,#8b5cf6,#6d28d9); }
+.av-green  { background: linear-gradient(135deg,#10b981,#059669); }
+.av-gray   { background: linear-gradient(135deg,#64748b,#475569); }
+.member-name { font-size: 13px; font-weight: 500; color: var(--text); }
+.member-hist { font-size: 10px; color: var(--primary); margin-top: 3px; }
 
-  /* ── 회칙 ── */
-  .rule-block { margin-bottom: 1.5rem; }
-  .rule-chapter {
-    font-size: 11px; letter-spacing: 0.2em; color: var(--gold);
-    text-transform: uppercase; margin-bottom: 8px;
-  }
-  .rule-item {
-    font-size: 13px; color: #444; padding: 6px 0 6px 14px;
-    border-left: 2px solid var(--border); margin-bottom: 4px; line-height: 1.6;
-  }
-  .rule-highlight {
-    background: #fff8e1; color: #b45309;
-    padding: 1px 7px; border-radius: 4px; font-size: 12px; margin-left: 6px;
-  }
+.tl-item { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.tl-item:last-child { border-bottom: none; }
+.tl-dot { width: 32px; height: 32px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+.tl-dot.current { background: var(--primary); color: #fff; }
+.tl-gen { font-size: 12px; color: var(--text3); }
+.tl-names { font-size: 14px; font-weight: 500; color: var(--text); }
+.tl-now { display: inline-block; font-size: 10px; background: var(--primary); color: #fff; padding: 1px 7px; border-radius: 10px; margin-left: 6px; vertical-align: middle; }
 
-  /* ── 경조사 ── */
-  .event-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
-  .event-item {
-    background: var(--cream);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1rem;
-    transition: box-shadow .2s;
-  }
-  .event-item:hover { box-shadow: 0 4px 20px rgba(201,168,76,0.15); }
-  .event-type { font-size: 11px; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 4px; }
-  .event-name { font-size: 14px; font-weight: 500; color: var(--ink); }
-  .event-amount { font-size: 17px; font-weight: 700; color: var(--gold); margin-top: 6px; }
-  .event-flower { font-size: 11px; color: var(--muted); margin-top: 2px; }
+/* 사진첩 */
+.year-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.25rem; }
+.year-tab { padding: 5px 14px; border-radius: 20px; border: 1px solid var(--border); font-size: 12px; color: var(--text2); cursor: pointer; background: var(--surface); transition: all .15s; }
+.year-tab:hover { border-color: var(--primary); color: var(--primary); }
+.year-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+.upload-btn { display: inline-flex; align-items: center; gap: 7px; padding: 8px 18px; background: var(--primary); color: #fff; border: none; border-radius: var(--radius); font-size: 13px; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; transition: background .2s; }
+.upload-btn:hover { background: var(--primary-dark); }
+#fileInput { display: none; }
+.photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
+.photo-item { border-radius: 10px; overflow: hidden; background: var(--border); border: 1px solid var(--border); }
+.photo-img-wrap { aspect-ratio: 1; overflow: hidden; cursor: pointer; }
+.photo-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s; }
+.photo-img-wrap:hover img { transform: scale(1.05); }
+.photo-footer { padding: 8px 10px; background: var(--surface); }
+.photo-name { font-size: 12px; color: var(--text); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.photo-meta { font-size: 11px; color: var(--text3); display: flex; justify-content: space-between; align-items: center; margin-top: 2px; }
+.photo-del { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 13px; padding: 0; }
+.photo-del:hover { color: var(--red); }
+.comment-toggle { font-size: 11px; color: var(--primary); cursor: pointer; background: none; border: none; font-family: inherit; padding: 0; margin-top: 4px; display: block; }
+.comment-section { padding: 8px 10px; background: #f8fafc; border-top: 1px solid var(--border); display: none; }
+.comment-section.open { display: block; }
+.comment-item { font-size: 12px; color: var(--text2); padding: 3px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.comment-item:last-of-type { border-bottom: none; }
+.comment-author { font-weight: 500; color: var(--primary); margin-right: 5px; }
+.comment-del { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 11px; }
+.comment-del:hover { color: var(--red); }
+.comment-input-row { display: flex; gap: 5px; margin-top: 7px; }
+.comment-input-row select, .comment-input-row input { border: 1px solid var(--border); border-radius: 8px; padding: 4px 8px; font-size: 12px; font-family: inherit; background: #fff; }
+.comment-input-row select { min-width: 75px; }
+.comment-input-row input { flex: 1; }
+.comment-input-row button { background: var(--primary); color: #fff; border: none; border-radius: 8px; padding: 4px 10px; font-size: 12px; cursor: pointer; white-space: nowrap; }
+.photo-empty { text-align: center; padding: 3rem 1rem; color: var(--text3); }
+.lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 999; align-items: center; justify-content: center; }
+.lightbox.open { display: flex; }
+.lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 8px; }
+.lightbox-close { position: absolute; top: 18px; right: 24px; color: #fff; font-size: 30px; cursor: pointer; }
 
-  /* ── 여행 시뮬레이터 ── */
-  .sim-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-  @media (max-width: 600px) { .sim-grid { grid-template-columns: 1fr; } }
-  .slider-group { margin-bottom: 16px; }
-  .slider-label {
-    display: flex; justify-content: space-between;
-    font-size: 13px; color: var(--muted); margin-bottom: 6px;
-  }
-  .slider-label span:last-child { font-weight: 500; color: var(--ink); }
-  input[type=range] {
-    width: 100%; height: 4px; appearance: none;
-    background: var(--cream2); border-radius: 2px; outline: none;
-  }
-  input[type=range]::-webkit-slider-thumb {
-    appearance: none; width: 16px; height: 16px;
-    background: var(--gold); border-radius: 50%; cursor: pointer;
-  }
-  .result-panel {
-    background: var(--ink);
-    color: var(--cream);
-    border-radius: var(--radius);
-    padding: 1.25rem;
-  }
-  .res-row { display: flex; justify-content: space-between; font-size: 13px; padding: 5px 0; color: rgba(250,248,242,0.65); }
-  .res-row.total { border-top: 1px solid rgba(201,168,76,0.3); margin-top: 8px; padding-top: 12px; font-size: 15px; font-weight: 500; color: var(--cream); }
-  .res-row.surplus { color: #a5d6a7; font-weight: 500; }
-  .res-row.shortfall { color: #ef9a9a; font-weight: 500; }
+/* 게시판 */
+.post-form { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1.25rem; box-shadow: var(--shadow); }
+.post-form-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.post-form select, .post-form input, .post-form textarea { border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 13px; font-family: inherit; background: #fff; color: var(--text); }
+.post-form select { min-width: 90px; }
+.post-form input { flex: 1; min-width: 180px; width: 100%; }
+.post-form textarea { width: 100%; resize: vertical; min-height: 80px; margin-bottom: 8px; }
+.post-form button { background: var(--primary); color: #fff; border: none; border-radius: 8px; padding: 8px 20px; font-size: 13px; cursor: pointer; font-family: inherit; }
+.post-list { display: flex; flex-direction: column; gap: 10px; }
+.post-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; box-shadow: var(--shadow); }
+.post-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.post-title { font-size: 14px; font-weight: 500; color: var(--text); }
+.post-meta { font-size: 11px; color: var(--text3); margin-top: 3px; }
+.post-body { font-size: 13px; color: var(--text2); margin-top: 8px; line-height: 1.7; white-space: pre-wrap; }
+.post-del { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 12px; flex-shrink: 0; }
+.post-del:hover { color: var(--red); }
+.post-reply-toggle { font-size: 12px; color: var(--primary); cursor: pointer; background: none; border: none; font-family: inherit; margin-top: 8px; padding: 0; }
+.post-replies { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); display: none; }
+.post-replies.open { display: block; }
+.reply-item { font-size: 12px; color: var(--text2); padding: 4px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
+.reply-item:last-of-type { border-bottom: none; }
+.reply-author { font-weight: 500; color: var(--primary); margin-right: 5px; }
+.reply-del { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 11px; }
+.reply-del:hover { color: var(--red); }
+.reply-input-row { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.reply-input-row select, .reply-input-row input { border: 1px solid var(--border); border-radius: 8px; padding: 5px 10px; font-size: 12px; font-family: inherit; background: #fff; }
+.reply-input-row select { min-width: 80px; }
+.reply-input-row input { flex: 1; min-width: 120px; }
+.reply-input-row button { background: var(--primary); color: #fff; border: none; border-radius: 8px; padding: 5px 12px; font-size: 12px; cursor: pointer; white-space: nowrap; }
+.post-empty { text-align: center; padding: 2rem; color: var(--text3); font-size: 14px; }
 
-  /* ── 의결 ── */
-  .vote-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-  @media (max-width: 550px) { .vote-grid { grid-template-columns: 1fr; } }
-  .vote-card {
-    border-radius: var(--radius);
-    padding: 1.25rem 1rem;
-    text-align: center;
-    border: 1px solid var(--border);
-  }
-  .vote-pct { font-size: 2rem; font-weight: 700; color: var(--gold); line-height: 1.1; }
-  .vote-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
-  .vote-example { font-size: 11px; color: var(--muted); margin-top: 8px; line-height: 1.5; }
+/* 자금 */
+.legend { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 10px; font-size: 12px; color: var(--text2); }
+.leg-dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-right: 4px; vertical-align: middle; }
 
-  /* ── LEGEND ── */
-  .legend { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 10px; font-size: 12px; color: var(--muted); }
-  .leg-dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-right: 4px; }
+/* 여행 */
+.sim-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+@media (max-width: 600px) { .sim-grid { grid-template-columns: 1fr; } }
+.slider-group { margin-bottom: 14px; }
+.slider-label { display: flex; justify-content: space-between; font-size: 13px; color: var(--text2); margin-bottom: 5px; }
+.slider-label span:last-child { font-weight: 500; color: var(--text); }
+input[type=range] { width: 100%; height: 4px; appearance: none; background: var(--border); border-radius: 2px; outline: none; }
+input[type=range]::-webkit-slider-thumb { appearance: none; width: 16px; height: 16px; background: var(--primary); border-radius: 50%; cursor: pointer; }
+.result-panel { background: var(--text); color: #fff; border-radius: var(--radius); padding: 1.25rem; }
+.res-row { display: flex; justify-content: space-between; font-size: 13px; padding: 5px 0; color: rgba(255,255,255,0.65); }
+.res-row.total { border-top: 1px solid rgba(255,255,255,0.15); margin-top: 8px; padding-top: 12px; font-size: 15px; font-weight: 500; color: #fff; }
+.res-row.surplus { color: #6ee7b7; font-weight: 500; }
+.res-row.shortfall { color: #fca5a5; font-weight: 500; }
+.progress-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1.25rem; box-shadow: var(--shadow); }
+.progress-label { display: flex; justify-content: space-between; font-size: 13px; color: var(--text2); margin-bottom: 8px; }
+.progress-bar-bg { background: var(--border); border-radius: 99px; height: 14px; overflow: hidden; }
+.progress-bar-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--primary), #7c3aed); transition: width .4s ease; }
+.progress-note { font-size: 12px; color: var(--text3); margin-top: 6px; }
 
-  /* ── FOOTER ── */
-  footer {
-    background: var(--ink);
-    color: rgba(250,248,242,0.35);
-    text-align: center;
-    padding: 2.5rem 1rem;
-    font-size: 12px;
-    letter-spacing: 0.08em;
-  }
-  footer .gold-text { color: var(--gold); }
+/* 회칙 */
+.vote-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.25rem; }
+@media (max-width: 540px) { .vote-grid { grid-template-columns: 1fr; } }
+.vote-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; text-align: center; box-shadow: var(--shadow); }
+.vote-pct { font-size: 1.8rem; font-weight: 700; color: var(--primary); }
+.vote-label { font-size: 12px; color: var(--text2); margin-top: 3px; font-weight: 500; }
+.vote-example { font-size: 11px; color: var(--text3); margin-top: 6px; line-height: 1.5; }
+.rule-block { margin-bottom: 1.25rem; }
+.rule-chapter { font-size: 10px; letter-spacing: 0.25em; color: var(--primary); text-transform: uppercase; margin-bottom: 7px; font-weight: 500; }
+.rule-item { font-size: 13px; color: var(--text2); padding: 5px 0 5px 12px; border-left: 2px solid var(--border); margin-bottom: 3px; line-height: 1.6; }
+.rule-hl { background: #fef3c7; color: #b45309; padding: 1px 6px; border-radius: 4px; font-size: 12px; margin-left: 5px; }
 
-  /* ── MEMBERS PHOTO GRID ── */
-  .member-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
-  .member-card {
-    background: #fff;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1rem;
-    text-align: center;
-    transition: transform .15s, box-shadow .15s;
-  }
-  .member-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(201,168,76,0.12); }
-  .avatar {
-    width: 52px; height: 52px; border-radius: 50%;
-    background: var(--ink);
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Noto Serif KR', serif;
-    font-size: 15px; font-weight: 700; color: var(--gold-light);
-    margin: 0 auto 10px;
-  }
-  .member-name { font-size: 14px; font-weight: 500; color: var(--ink); }
-  .member-role { font-size: 11px; color: var(--muted); margin-top: 2px; }
-  .member-fee { font-size: 11px; color: #2e7d32; margin-top: 4px; }
+/* 경조사 */
+.event-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.event-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; box-shadow: var(--shadow); transition: transform .15s; }
+.event-item:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.event-type { font-size: 11px; color: var(--text3); margin-bottom: 3px; }
+.event-name { font-size: 13px; font-weight: 500; color: var(--text); }
+.event-amount { font-size: 16px; font-weight: 700; color: var(--primary); margin-top: 5px; }
+.event-flower { font-size: 11px; color: var(--text3); margin-top: 2px; }
 
-  @media (max-width: 600px) {
-    section { padding: 2.5rem 0; }
-    nav a { padding: 12px 14px; font-size: 12px; }
-  }
+/* 모임 기록 */
+.meeting-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.meeting-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.1rem; box-shadow: var(--shadow); transition: transform .15s; }
+.meeting-card:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.meeting-title { font-size: 15px; font-weight: 500; color: var(--text); margin: 6px 0 4px; }
+.meeting-meta { font-size: 12px; color: var(--text3); display: flex; gap: 10px; flex-wrap: wrap; }
+.meeting-note { font-size: 12px; color: var(--text2); margin-top: 8px; line-height: 1.6; padding-top: 8px; border-top: 1px solid var(--border); }
+.form-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.form-row input, .form-row select, .form-row textarea { border: 1px solid var(--border); border-radius: 8px; padding: 7px 11px; font-size: 13px; font-family: inherit; background: #fff; color: var(--text); flex: 1; min-width: 120px; }
+.form-row textarea { width: 100%; min-height: 60px; resize: vertical; flex: none; }
+.form-row button { background: var(--primary); color: #fff; border: none; border-radius: 8px; padding: 7px 18px; font-size: 13px; cursor: pointer; font-family: inherit; white-space: nowrap; }
+
+/* 로딩 */
+.loading { text-align: center; padding: 2rem; color: var(--text3); font-size: 13px; }
+.spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin .6s linear infinite; margin-right: 6px; vertical-align: middle; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+footer { background: var(--text); color: rgba(255,255,255,0.4); text-align: center; padding: 2rem 1rem; font-size: 12px; }
+footer .hl { color: rgba(255,255,255,0.85); }
+@media (max-width: 600px) { section { padding: 2rem 0; } nav a { padding: 11px 10px; font-size: 12px; } }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="header-ornament">Since 중학교 동창</div>
-  <h1 class="site-title">범우회</h1>
-  <div class="gold-line"></div>
-  <p class="site-subtitle">회원 10명 · 친목 계모임 · 2026</p>
+  <div class="header-tag">SINCE 중학교 동창</div>
+  <h1 class="site-title">범우회 🤝</h1>
+  <p class="site-subtitle">회원 11명 · 친목 계모임 · 2026</p>
+  <div class="header-officers">
+    <div class="officer-pill">3대 회장 <span>장영익</span></div>
+    <div class="officer-pill">3대 총무 <span>황재철</span></div>
+  </div>
 </header>
 
 <nav id="main-nav">
-  <a href="#finance" class="active">자금 현황</a>
+  <a href="#members" class="active">구성원</a>
+  <a href="#gallery">사진첩</a>
+  <a href="#board">게시판</a>
+  <a href="#finance">자금 현황</a>
   <a href="#travel">여행 계획</a>
-  <a href="#members">구성원</a>
+  <a href="#meetings">모임 기록</a>
   <a href="#rules">회칙</a>
   <a href="#events">경조사</a>
 </nav>
 
-<!-- ── 자금 현황 ── -->
+<!-- 구성원 -->
+<section id="members">
+  <div class="container">
+    <p class="section-tag">Members</p>
+    <h2 class="section-title">구성원</h2>
+    <div class="member-grid" id="memberGrid"></div>
+    <div class="card" style="margin-top:1.25rem">
+      <div class="card-title">🏆 역대 임원</div>
+      <div id="officerTimeline"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 사진첩 -->
+<section id="gallery">
+  <div class="container">
+    <p class="section-tag">Gallery</p>
+    <h2 class="section-title">사진첩</h2>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;flex-wrap:wrap;">
+      <label for="fileInput" class="upload-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        사진 업로드
+      </label>
+      <input type="file" id="fileInput" accept="image/*" multiple>
+      <select id="uploadYear" style="border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:13px;font-family:inherit;background:#fff;"></select>
+      <span id="photoCount" style="font-size:13px;color:var(--text3);"></span>
+    </div>
+    <div class="year-tabs" id="yearTabs"></div>
+    <div id="photoGrid" class="photo-grid"></div>
+    <div id="photoEmpty" class="photo-empty" style="display:none;">
+      <p style="font-size:2rem;margin-bottom:6px;">📷</p>
+      <p>이 연도에는 사진이 없습니다.</p>
+    </div>
+  </div>
+</section>
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <span class="lightbox-close">&times;</span>
+  <img id="lightboxImg" src="" alt="">
+</div>
+
+<!-- 게시판 -->
+<section id="board">
+  <div class="container">
+    <p class="section-tag">Board</p>
+    <h2 class="section-title">게시판</h2>
+    <div class="post-form">
+      <div class="post-form-row">
+        <select id="postAuthor" style="border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;background:#fff;min-width:90px;"></select>
+        <select id="postCategory" style="border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;background:#fff;min-width:90px;">
+          <option value="공지">📢 공지</option>
+          <option value="일반">💬 일반</option>
+          <option value="질문">❓ 질문</option>
+          <option value="유머">😄 유머</option>
+        </select>
+        <input id="postTitle" type="text" placeholder="제목" style="border:1px solid var(--border);border-radius:8px;padding:7px 11px;font-size:13px;font-family:inherit;background:#fff;flex:1;min-width:160px;">
+      </div>
+      <textarea id="postBody" placeholder="내용을 입력하세요..." style="border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;font-family:inherit;background:#fff;width:100%;resize:vertical;min-height:80px;margin-bottom:8px;"></textarea>
+      <button onclick="submitPost()" style="background:var(--primary);color:#fff;border:none;border-radius:8px;padding:8px 20px;font-size:13px;cursor:pointer;font-family:inherit;">글 올리기</button>
+    </div>
+    <div id="postList" class="post-list"><div class="loading"><span class="spinner"></span>불러오는 중...</div></div>
+  </div>
+</section>
+
+<!-- 자금 현황 -->
 <section id="finance">
   <div class="container">
-    <p class="section-label">Finance</p>
+    <p class="section-tag">Finance</p>
     <h2 class="section-title">자금 현황</h2>
-
-    <div class="metric-grid">
-      <div class="metric-card">
-        <div class="metric-label">현재 총 잔액</div>
-        <div class="metric-value">517만원</div>
-        <div class="metric-sub">계좌 + 세이프티박스</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-label">2026 납입 누계</div>
-        <div class="metric-value">130만원</div>
-        <div class="metric-sub">1~2월 기준</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-label">2025 총 수입</div>
-        <div class="metric-value">532만원</div>
-        <div class="metric-sub">회비 + 이자</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-label">2025 총 지출</div>
-        <div class="metric-value">344만원</div>
-        <div class="metric-sub">모임 · 경조사</div>
-      </div>
+    <div class="metric-row">
+      <div class="metric blue"><div class="metric-label">2024년 말 계좌</div><div class="metric-value">137만원</div><div class="metric-sub">이월금 기준</div></div>
+      <div class="metric blue"><div class="metric-label">2025년 말 계좌</div><div class="metric-value">138만원</div><div class="metric-sub">수입 – 지출</div></div>
+      <div class="metric green"><div class="metric-label">2024년 말 세이프티박스</div><div class="metric-value">350만원</div><div class="metric-sub">적립금</div></div>
+      <div class="metric green"><div class="metric-label">2025년 말 세이프티박스</div><div class="metric-value">401만원</div><div class="metric-sub">적립금</div></div>
     </div>
-
     <div class="card">
-      <h3>2025년 월별 수입 / 지출</h3>
+      <div class="card-title">📊 연도별 자금 비교 (2024 → 2025)</div>
       <div class="legend">
-        <span><span class="leg-dot" style="background:#c9a84c"></span>수입</span>
-        <span><span class="leg-dot" style="background:#c0392b"></span>지출</span>
+        <span><span class="leg-dot" style="background:#3b82f6"></span>계좌 잔액</span>
+        <span><span class="leg-dot" style="background:#10b981"></span>세이프티박스</span>
+        <span><span class="leg-dot" style="background:#f59e0b"></span>합계</span>
       </div>
-      <div class="chart-wrap" style="height:240px">
-        <canvas id="incomeExpChart" role="img" aria-label="2025년 월별 수입 지출 막대차트"></canvas>
-      </div>
+      <div class="chart-wrap" style="height:250px"><canvas id="yearFundChart" role="img" aria-label="연도별 자금 비교"></canvas></div>
     </div>
-
     <div class="card">
-      <h3>2025 vs 2026 상반기 누계 비교</h3>
-      <div class="legend">
-        <span><span class="leg-dot" style="background:#5DCAA5"></span>2025년</span>
-        <span><span class="leg-dot" style="background:#7F77DD; border:1px dashed #7F77DD"></span>2026년</span>
-      </div>
-      <div class="chart-wrap" style="height:200px">
-        <canvas id="yearCompChart" role="img" aria-label="연도별 상반기 누계 비교 라인차트"></canvas>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>2025년 지출 항목 분류</h3>
+      <div class="card-title">🍩 2025년 지출 항목 분류</div>
       <div style="display:flex;align-items:center;gap:2rem;flex-wrap:wrap;">
-        <div class="chart-wrap" style="height:200px;flex:1;min-width:150px">
-          <canvas id="expCatChart" role="img" aria-label="지출 항목별 도넛 차트"></canvas>
-        </div>
+        <div class="chart-wrap" style="height:190px;flex:1;min-width:140px"><canvas id="expCatChart" role="img" aria-label="지출 항목 도넛"></canvas></div>
         <div id="expLegend" style="flex:1;min-width:140px;font-size:13px;"></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>2026년 회원별 납부 현황 (1~2월)</h3>
-      <div class="chart-wrap" style="height:200px">
-        <canvas id="fee2026Chart" role="img" aria-label="2026년 회원별 납부 막대차트"></canvas>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ── 여행 계획 ── -->
+<!-- 여행 계획 -->
 <section id="travel">
   <div class="container">
-    <p class="section-label">Travel Budget</p>
-    <h2 class="section-title">해외 여행 예산 시뮬레이터</h2>
+    <p class="section-tag">Travel Budget</p>
+    <h2 class="section-title">해외 여행 예산 계획</h2>
+    <div class="progress-wrap">
+      <div class="card-title" style="border:none;padding:0;margin-bottom:10px;">🎯 해외여행 적립 목표</div>
+      <div class="progress-label">
+        <span>현재 잔액 <strong>539만원</strong></span>
+        <span id="progressTarget">목표 <strong>1,000만원</strong></span>
+      </div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill" style="width:53.9%"></div></div>
+      <div class="progress-note" id="progressNote">539만원 / 1,000만원 달성 · 약 53.9% · 목표까지 461만원 남음</div>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center;">
+        <span style="font-size:12px;color:var(--text2);">목표 금액 조정:</span>
+        <input type="range" id="goalSlider" min="500" max="2000" value="1000" step="50" oninput="updateGoal()" style="flex:1;min-width:120px;">
+        <span id="goalVal" style="font-size:13px;font-weight:500;color:var(--text);min-width:60px;">1,000만원</span>
+      </div>
+    </div>
     <div class="sim-grid">
-      <div>
-        <div class="card" style="margin-bottom:0">
-          <h3>조건 설정</h3>
-          <div class="slider-group">
-            <div class="slider-label"><span>참여 인원</span><span id="paxVal">9명</span></div>
-            <input type="range" id="pax" min="4" max="11" value="9" step="1" oninput="calcTravel()">
-          </div>
-          <div class="slider-group">
-            <div class="slider-label"><span>1인 항공권</span><span id="airVal">60만원</span></div>
-            <input type="range" id="airfare" min="200000" max="1500000" value="600000" step="50000" oninput="calcTravel()">
-          </div>
-          <div class="slider-group">
-            <div class="slider-label"><span>1인 숙박 (전체)</span><span id="hotelVal">20만원</span></div>
-            <input type="range" id="hotel" min="50000" max="500000" value="200000" step="10000" oninput="calcTravel()">
-          </div>
-          <div class="slider-group">
-            <div class="slider-label"><span>1인 식비 / 기타</span><span id="miscVal">15만원</span></div>
-            <input type="range" id="misc" min="50000" max="400000" value="150000" step="10000" oninput="calcTravel()">
-          </div>
-        </div>
+      <div class="card" style="margin-bottom:0">
+        <div class="card-title">⚙️ 조건 설정</div>
+        <div class="slider-group"><div class="slider-label"><span>참여 인원</span><span id="paxVal">9명</span></div><input type="range" id="pax" min="4" max="11" value="9" step="1" oninput="calcTravel()"></div>
+        <div class="slider-group"><div class="slider-label"><span>1인 항공권</span><span id="airVal">60만원</span></div><input type="range" id="airfare" min="200000" max="1500000" value="600000" step="50000" oninput="calcTravel()"></div>
+        <div class="slider-group"><div class="slider-label"><span>1인 숙박 (전체)</span><span id="hotelVal">20만원</span></div><input type="range" id="hotel" min="50000" max="500000" value="200000" step="10000" oninput="calcTravel()"></div>
+        <div class="slider-group"><div class="slider-label"><span>1인 식비 / 기타</span><span id="miscVal">15만원</span></div><input type="range" id="misc" min="50000" max="400000" value="150000" step="10000" oninput="calcTravel()"></div>
       </div>
       <div>
         <div class="result-panel">
           <div class="res-row"><span>총 필요 예산</span><span id="rTotal">—</span></div>
-          <div class="res-row"><span>현재 잔액</span><span>517만원</span></div>
+          <div class="res-row"><span>현재 잔액 (계좌+세이프티)</span><span>539만원</span></div>
           <div class="res-row"><span>연말까지 추가 납입 예상</span><span id="rFuture">—</span></div>
           <div class="res-row total"><span>연말 예상 잔액</span><span id="rYearEnd">—</span></div>
           <div class="res-row" id="gapRow"><span>여행 후 잔액</span><span id="rGap">—</span></div>
         </div>
-        <p style="font-size:11px;color:var(--muted);margin-top:10px;line-height:1.6;">
-          ※ 현재 잔액 517만원 기준<br>
-          ※ 월 평균 납입 30만원 × 잔여 10개월 반영
-        </p>
+        <p style="font-size:11px;color:var(--text3);margin-top:8px;line-height:1.7;">※ 월 평균 납입 30만원 × 잔여 10개월 반영</p>
       </div>
     </div>
-    <div class="card" style="margin-top:1.5rem">
-      <h3>예산 구성 비교</h3>
-      <div class="chart-wrap" style="height:240px">
-        <canvas id="travelChart" role="img" aria-label="여행 예산 구성 비교 차트"></canvas>
-      </div>
+    <div class="card" style="margin-top:1.25rem">
+      <div class="card-title">📊 예산 구성 비교</div>
+      <div class="chart-wrap" style="height:230px"><canvas id="travelChart" role="img" aria-label="여행 예산 구성 차트"></canvas></div>
     </div>
   </div>
 </section>
 
-<!-- ── 구성원 ── -->
-<section id="members">
+<!-- 모임 기록 -->
+<section id="meetings">
   <div class="container">
-    <p class="section-label">Members</p>
-    <h2 class="section-title">구성원</h2>
-    <div class="member-grid" id="memberGrid"></div>
-    <div class="card" style="margin-top:1.5rem">
-      <h3>2025년 개인별 납부 내역</h3>
-      <table class="data-table">
-        <thead>
-          <tr><th>이름</th><th>역할</th><th>청구</th><th>납부</th><th>미납</th></tr>
-        </thead>
-        <tbody id="memberTable"></tbody>
-      </table>
+    <p class="section-tag">Meeting History</p>
+    <h2 class="section-title">모임 기록</h2>
+    <div class="card">
+      <div class="card-title">➕ 모임 추가</div>
+      <div class="form-row">
+        <select id="meetYear" style="min-width:80px;flex:none;border:1px solid var(--border);border-radius:8px;padding:7px 11px;font-size:13px;font-family:inherit;background:#fff;"></select>
+        <input id="meetTitle" type="text" placeholder="모임명 (예: 2025 여름 정기모임)">
+        <input id="meetPlace" type="text" placeholder="장소">
+        <input id="meetMembers" type="text" placeholder="참석 (예: 7명)">
+      </div>
+      <div class="form-row"><textarea id="meetNote" placeholder="간단한 후기나 메모..."></textarea></div>
+      <div class="form-row"><button onclick="addMeeting()">기록 추가</button></div>
     </div>
+    <div id="meetingGrid" class="meeting-grid"></div>
+    <div id="meetingEmpty" class="photo-empty" style="display:none;">아직 모임 기록이 없습니다.</div>
   </div>
 </section>
 
-<!-- ── 회칙 ── -->
+<!-- 회칙 -->
 <section id="rules">
   <div class="container">
-    <p class="section-label">Rules</p>
+    <p class="section-tag">Rules</p>
     <h2 class="section-title">회칙</h2>
-    <div class="vote-grid" style="margin-bottom:1.5rem">
-      <div class="vote-card">
-        <div class="vote-pct">70%</div>
-        <div class="vote-label">중대 사안</div>
-        <div class="vote-example">회비 인상, 신규 회원 가입, 운영 규칙 변경</div>
-      </div>
-      <div class="vote-card">
-        <div class="vote-pct">60%</div>
-        <div class="vote-label">중간 사안</div>
-        <div class="vote-example">해외 모임, 1박 2일 특별 모임, 회계 방식 조정</div>
-      </div>
-      <div class="vote-card">
-        <div class="vote-pct">50%</div>
-        <div class="vote-label">일반 사안</div>
-        <div class="vote-example">일정 조율, 장소 선택, 단순 활동 계획</div>
-      </div>
+    <div class="vote-grid">
+      <div class="vote-card"><div class="vote-pct">70%</div><div class="vote-label">중대 사안</div><div class="vote-example">회비 인상, 신규 회원 가입, 운영 규칙 변경</div></div>
+      <div class="vote-card"><div class="vote-pct">60%</div><div class="vote-label">중간 사안</div><div class="vote-example">해외 모임, 1박 2일 특별 모임, 회계 방식 조정</div></div>
+      <div class="vote-card"><div class="vote-pct">50%</div><div class="vote-label">일반 사안</div><div class="vote-example">일정 조율, 장소 선택, 단순 활동 계획</div></div>
     </div>
     <div class="card">
-      <div class="rule-block">
-        <div class="rule-chapter">1장 총칙</div>
-        <div class="rule-item">명칭: 범우회 · 목적: 회원 상호간 친목</div>
-      </div>
-      <div class="rule-block">
-        <div class="rule-chapter">2장 임원</div>
-        <div class="rule-item">회장 1명 (김주성) · 총무 1명 (박현)</div>
-        <div class="rule-item">임기 1년, 연임 가능 · 매년 연말 투표 선임</div>
-      </div>
-      <div class="rule-block">
-        <div class="rule-chapter">3장 모임</div>
-        <div class="rule-item">정기모임: 하계·동계 각 1회 — 회원 1/2 동의 없으면 취소</div>
-        <div class="rule-item">임시모임: 회장 재량 또는 정원 1/2 이상 요청 시</div>
-      </div>
-      <div class="rule-block">
-        <div class="rule-chapter">7장 재정</div>
-        <div class="rule-item">월 회비 40,000원 <span class="rule-highlight">매월 15일까지 납부</span></div>
-        <div class="rule-item">회장 30,000원 · 총무 20,000원</div>
-        <div class="rule-item">연체 벌금 10,000원 / 미납 시 경조사 지급액에서 차감</div>
-        <div class="rule-item">정기모임 최대 200만원 · 임시모임 최대 50만원</div>
-        <div class="rule-item">차량 지원: 4인당 1대 · 주유·도로비 실비 (개인차량 제외)</div>
-      </div>
-      <div class="rule-block" style="margin-bottom:0">
-        <div class="rule-chapter">5장 회원 관리</div>
-        <div class="rule-item">신입: 기존 100% 찬성 + 가입금 (1년치 회비÷인원, 최저 50만원)</div>
-        <div class="rule-item">탈퇴 시 납부 회비 반환 없음</div>
-      </div>
+      <div class="rule-block"><div class="rule-chapter">2장 임원</div><div class="rule-item">회장 1명 <strong>(장영익)</strong> · 총무 1명 <strong>(황재철)</strong></div><div class="rule-item">임기 1년, 연임 가능 · 매년 연말 투표 선임</div></div>
+      <div class="rule-block"><div class="rule-chapter">3장 모임</div><div class="rule-item">정기모임: 하계·동계 각 1회 — 회원 1/2 동의 없으면 취소</div><div class="rule-item">임시모임: 회장 재량 또는 정원 1/2 이상 요청 시</div></div>
+      <div class="rule-block"><div class="rule-chapter">7장 재정</div><div class="rule-item">월 회비 40,000원 <span class="rule-hl">매월 15일까지</span></div><div class="rule-item">회장 30,000원 · 총무 20,000원</div><div class="rule-item">연체 벌금 10,000원 — 미납 시 경조사 지급액에서 차감</div><div class="rule-item">정기모임 최대 200만원 · 임시모임 최대 50만원</div><div class="rule-item">차량 지원: 4인당 1대 · 주유·도로비 실비 (개인차량 제외)</div><div class="rule-item">입금 계좌: 카카오뱅크 3333-35-1745630</div></div>
+      <div class="rule-block" style="margin-bottom:0"><div class="rule-chapter">5장 회원 관리</div><div class="rule-item">신입: 기존 100% 찬성 + 가입금 (1년치 회비÷인원, 최저 50만원)</div><div class="rule-item">탈퇴 시 납부 회비 반환 없음 · 동률 시 총무 최종 결정권</div></div>
     </div>
   </div>
 </section>
 
-<!-- ── 경조사 ── -->
+<!-- 경조사 -->
 <section id="events">
   <div class="container">
-    <p class="section-label">Events</p>
+    <p class="section-tag">Events</p>
     <h2 class="section-title">경조사 기준</h2>
     <div class="event-grid">
-      <div class="event-item">
-        <div class="event-type">결혼</div>
-        <div class="event-name">본인 결혼</div>
-        <div class="event-amount">500,000원</div>
-        <div class="event-flower">+ 화환</div>
-      </div>
-      <div class="event-item">
-        <div class="event-type">개업</div>
-        <div class="event-name">본인</div>
-        <div class="event-amount">화환만</div>
-        <div class="event-flower">+ 화환</div>
-      </div>
-      <div class="event-item">
-        <div class="event-type">돌잔치</div>
-        <div class="event-name">자녀</div>
-        <div class="event-amount">100,000원</div>
-        <div class="event-flower">화환 없음</div>
-      </div>
-      <div class="event-item">
-        <div class="event-type">출산</div>
-        <div class="event-name">자녀 출산</div>
-        <div class="event-amount">100,000원</div>
-        <div class="event-flower">화환 없음</div>
-      </div>
-      <div class="event-item">
-        <div class="event-type">부의 (본인·배우자·부모·자녀)</div>
-        <div class="event-name">장례</div>
-        <div class="event-amount">1,000,000원</div>
-        <div class="event-flower">+ 화환</div>
-      </div>
-      <div class="event-item">
-        <div class="event-type">부의 (처부모)</div>
-        <div class="event-name">장례</div>
-        <div class="event-amount">500,000원</div>
-        <div class="event-flower">+ 화환</div>
-      </div>
-      <div class="event-item">
-        <div class="event-type">칠순</div>
-        <div class="event-name">부모</div>
-        <div class="event-amount">100,000원</div>
-        <div class="event-flower">화환 없음</div>
-      </div>
+      <div class="event-item"><div class="event-type">결혼</div><div class="event-name">본인 결혼</div><div class="event-amount">500,000원</div><div class="event-flower">+ 화환</div></div>
+      <div class="event-item"><div class="event-type">개업</div><div class="event-name">본인</div><div class="event-amount">화환만</div><div class="event-flower">+ 화환</div></div>
+      <div class="event-item"><div class="event-type">돌잔치</div><div class="event-name">자녀</div><div class="event-amount">100,000원</div><div class="event-flower">화환 없음</div></div>
+      <div class="event-item"><div class="event-type">출산</div><div class="event-name">자녀 출산</div><div class="event-amount">100,000원</div><div class="event-flower">화환 없음</div></div>
+      <div class="event-item"><div class="event-type">부의 (본인·배우자·부모·자녀)</div><div class="event-name">장례</div><div class="event-amount">1,000,000원</div><div class="event-flower">+ 화환</div></div>
+      <div class="event-item"><div class="event-type">부의 (처부모)</div><div class="event-name">장례</div><div class="event-amount">500,000원</div><div class="event-flower">+ 화환</div></div>
+      <div class="event-item"><div class="event-type">칠순</div><div class="event-name">부모</div><div class="event-amount">100,000원</div><div class="event-flower">화환 없음</div></div>
     </div>
-    <p style="font-size:12px;color:var(--muted);margin-top:1rem;">
-      ※ 재혼도 결혼식 진행 시 포함 · 출산·돌은 모든 자녀 해당
-    </p>
+    <p style="font-size:12px;color:var(--text3);margin-top:1rem;">※ 재혼도 결혼식 진행 시 포함 · 출산·돌은 모든 자녀 해당</p>
   </div>
 </section>
 
 <footer>
-  <div class="gold-line"></div>
-  <p><span class="gold-text">범우회</span> &nbsp;·&nbsp; 중학교 동창 친목 모임</p>
-  <p style="margin-top:6px">입금 계좌: 카카오뱅크 3333-35-1745630</p>
+  <p><span class="hl">범우회</span> · 중학교 동창 친목 모임</p>
+  <p style="margin-top:5px">입금 계좌: 카카오뱅크 3333-35-1745630</p>
 </footer>
 
 <script>
-/* ── 데이터 ── */
-const months = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
-const income2025 = [1134743,440000,480065,530769,160097,240133,413008,341667,212374,290000,290000,430000];
-const expense2025 = [100000,190000,487900,0,0,0,2090146,0,578500,0,0,0];
-const members = [
-  {name:'김상만',role:'정회원',charge:480000,paid:480000},
-  {name:'김주성',role:'회장',charge:390000,paid:390000},
-  {name:'김찬성',role:'정회원',charge:480000,paid:480000},
-  {name:'김태우',role:'정회원',charge:480000,paid:480000},
-  {name:'김태환',role:'정회원',charge:480000,paid:480000},
-  {name:'박성준',role:'정회원',charge:480000,paid:480000},
-  {name:'박현',role:'총무',charge:300000,paid:300000},
-  {name:'유병욱',role:'정회원',charge:480000,paid:480000},
-  {name:'장영익',role:'정회원',charge:450000,paid:450000},
-  {name:'정민기',role:'정회원',charge:480000,paid:480000},
-  {name:'황재철',role:'전총무',charge:420000,paid:420000},
-];
-const fees2026 = [80000,80000,480000,80000,80000,240000,80000,60000,80000,40000];
-const memberNames10 = ['김상만','김주성','김찬성','김태환','박성준','박현','유병욱','장영익','정민기','황재철'];
+/* ═══ Supabase 초기화 ═══ */
+const SUPABASE_URL = 'https://sewbflcrqyiefvtgjtou.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNld2JmbGNycXlpZWZ2dGdqdG91Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxODcwMjMsImV4cCI6MjA5MTc2MzAyM30.v2lHyBe9y9pIkFnAsZUUaDc3-y2mb__l5FjmpXwWdJk';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-/* ── 차트 공통 설정 ── */
+/* ═══ 공통 ═══ */
 Chart.defaults.font.family = "'Noto Sans KR', sans-serif";
-Chart.defaults.color = '#7a7a8a';
+Chart.defaults.color = '#94a3b8';
+const MEMBER_NAMES = ['김상만','김주성','김찬성','김태우','김태환','박성준','박현','유병욱','장영익','정민기','황재철'];
+const YEARS = Array.from({length:11},(_,i)=>2020+i);
 
-/* ── 수입/지출 ── */
-new Chart(document.getElementById('incomeExpChart'),{
+/* ═══ 구성원 ═══ */
+const members = [
+  {name:'김상만',role:'정회원',hist:'',av:'av-gray'},
+  {name:'김주성',role:'전회장',hist:'2대 회장',av:'av-purple'},
+  {name:'김찬성',role:'전회장',hist:'1대 회장',av:'av-purple'},
+  {name:'김태우',role:'정회원',hist:'',av:'av-gray'},
+  {name:'김태환',role:'전총무',hist:'1대 총무',av:'av-amber'},
+  {name:'박성준',role:'정회원',hist:'',av:'av-gray'},
+  {name:'박현',  role:'전총무',hist:'2대 총무',av:'av-amber'},
+  {name:'유병욱',role:'정회원',hist:'',av:'av-gray'},
+  {name:'장영익',role:'회장',  hist:'3대 회장',av:'av-blue'},
+  {name:'정민기',role:'정회원',hist:'',av:'av-gray'},
+  {name:'황재철',role:'총무',  hist:'3대 총무',av:'av-green'},
+];
+const badgeMap={회장:'badge-blue',총무:'badge-green',전회장:'badge-purple',전총무:'badge-amber',정회원:'badge-gray'};
+const mg=document.getElementById('memberGrid');
+members.forEach(m=>{
+  mg.innerHTML+=`<div class="member-card"><div class="avatar ${m.av}">${m.name[0]}</div><div class="member-name">${m.name}</div><div style="margin-top:4px"><span class="badge ${badgeMap[m.role]||'badge-gray'}">${m.role}</span></div>${m.hist?`<div class="member-hist">${m.hist}</div>`:''}</div>`;
+});
+const officers=[{gen:'1대',chair:'김찬성',sec:'김태환',current:false},{gen:'2대',chair:'김주성',sec:'박현',current:false},{gen:'3대',chair:'장영익',sec:'황재철',current:true}];
+const tl=document.getElementById('officerTimeline');
+officers.forEach(o=>{
+  tl.innerHTML+=`<div class="tl-item"><div class="tl-dot ${o.current?'current':''}">${o.gen[0]}</div><div><div class="tl-gen">${o.gen}</div><div class="tl-names">회장 ${o.chair} · 총무 ${o.sec}${o.current?'<span class="tl-now">현재</span>':''}</div></div></div>`;
+});
+
+/* ═══ 사진첩 ═══ */
+let activeYear = new Date().getFullYear();
+const yearTabsEl=document.getElementById('yearTabs');
+const uploadYearEl=document.getElementById('uploadYear');
+YEARS.forEach(y=>{
+  const btn=document.createElement('button');
+  btn.className='year-tab'+(y===activeYear?' active':'');
+  btn.textContent=y+'년';
+  btn.onclick=()=>{ activeYear=y; renderYearTabs(); loadPhotos(); };
+  yearTabsEl.appendChild(btn);
+  const opt=document.createElement('option');
+  opt.value=y; opt.textContent=y+'년';
+  if(y===activeYear) opt.selected=true;
+  uploadYearEl.appendChild(opt);
+});
+function renderYearTabs(){ yearTabsEl.querySelectorAll('.year-tab').forEach((b,i)=>b.classList.toggle('active',YEARS[i]===activeYear)); }
+
+async function loadPhotos(){
+  const pg=document.getElementById('photoGrid');
+  const empty=document.getElementById('photoEmpty');
+  pg.innerHTML='<div class="loading" style="grid-column:1/-1"><span class="spinner"></span>불러오는 중...</div>';
+  empty.style.display='none';
+  const {data,error}=await sb.from('photos').select('*, photo_comments(*)').eq('year',activeYear).order('created_at',{ascending:false});
+  pg.innerHTML='';
+  if(error||!data||data.length===0){ empty.style.display='block'; updatePhotoCount(); return; }
+  data.forEach(p=>renderPhotoItem(p,pg));
+  updatePhotoCount();
+}
+
+async function updatePhotoCount(){
+  const {count}=await sb.from('photos').select('*',{count:'exact',head:true});
+  document.getElementById('photoCount').textContent=`전체 ${count||0}장`;
+}
+
+function renderPhotoItem(p,container){
+  const div=document.createElement('div'); div.className='photo-item';
+  const comments=p.photo_comments||[];
+  div.innerHTML=`
+    <div class="photo-img-wrap"><img src="${p.src}" alt="${p.name}" loading="lazy"></div>
+    <div class="photo-footer">
+      <div class="photo-name">${p.name}</div>
+      <div class="photo-meta"><span>${p.year}년</span><button class="photo-del" title="삭제">🗑</button></div>
+      <button class="comment-toggle">💬 댓글 ${comments.length}개</button>
+    </div>
+    <div class="comment-section">
+      <div class="comment-list"></div>
+      <div class="comment-input-row">
+        <select class="comm-author"></select>
+        <input type="text" class="comm-text" placeholder="댓글 입력...">
+        <button class="comm-submit">등록</button>
+      </div>
+    </div>`;
+  const sel=div.querySelector('.comm-author');
+  MEMBER_NAMES.forEach(n=>{ const o=document.createElement('option'); o.value=n; o.textContent=n; sel.appendChild(o); });
+  function renderComments(cms){
+    const cl=div.querySelector('.comment-list'); cl.innerHTML='';
+    cms.forEach(c=>{
+      const d=document.createElement('div'); d.className='comment-item';
+      d.innerHTML=`<span><span class="comment-author">${c.author}</span>${c.text}</span><button class="comment-del" data-id="${c.id}">✕</button>`;
+      d.querySelector('.comment-del').onclick=async()=>{ if(!confirm('삭제할까요?')) return; await sb.from('photo_comments').delete().eq('id',c.id); loadPhotos(); };
+      cl.appendChild(d);
+    });
+    div.querySelector('.comment-toggle').textContent=`💬 댓글 ${cms.length}개`;
+  }
+  renderComments(comments);
+  div.querySelector('.comment-toggle').onclick=()=>div.querySelector('.comment-section').classList.toggle('open');
+  div.querySelector('.comm-submit').onclick=async()=>{
+    const txt=div.querySelector('.comm-text').value.trim();
+    const auth=div.querySelector('.comm-author').value;
+    if(!txt) return;
+    await sb.from('photo_comments').insert({photo_id:p.id,author:auth,text:txt});
+    div.querySelector('.comm-text').value='';
+    loadPhotos();
+  };
+  div.querySelector('.photo-img-wrap').onclick=()=>openLightbox(p.src);
+  div.querySelector('.photo-del').onclick=async()=>{
+    if(!confirm('삭제할까요?')) return;
+    await sb.from('photos').delete().eq('id',p.id);
+    loadPhotos();
+  };
+  container.appendChild(div);
+}
+
+function openLightbox(src){ document.getElementById('lightboxImg').src=src; document.getElementById('lightbox').classList.add('open'); }
+function closeLightbox(){ document.getElementById('lightbox').classList.remove('open'); }
+
+document.getElementById('fileInput').addEventListener('change',async function(e){
+  const files=Array.from(e.target.files); if(!files.length) return;
+  const year=parseInt(document.getElementById('uploadYear').value);
+  const btn=document.querySelector('.upload-btn');
+  btn.textContent='업로드 중...';
+  for(const file of files){
+    const src=await new Promise(res=>{ const r=new FileReader(); r.onload=ev=>res(ev.target.result); r.readAsDataURL(file); });
+    await sb.from('photos').insert({name:file.name.replace(/\.[^.]+$/,''),year,src});
+  }
+  btn.innerHTML=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>사진 업로드`;
+  activeYear=year; renderYearTabs(); loadPhotos();
+  this.value='';
+});
+
+loadPhotos();
+
+/* ═══ 게시판 ═══ */
+const postAuthorEl=document.getElementById('postAuthor');
+MEMBER_NAMES.forEach(n=>{ const o=document.createElement('option'); o.value=n; o.textContent=n; postAuthorEl.appendChild(o); });
+
+async function loadPosts(){
+  const pl=document.getElementById('postList');
+  pl.innerHTML='<div class="loading"><span class="spinner"></span>불러오는 중...</div>';
+  const {data,error}=await sb.from('posts').select('*, post_replies(*)').order('created_at',{ascending:false});
+  pl.innerHTML='';
+  if(error||!data||data.length===0){ pl.innerHTML='<div class="post-empty">아직 게시글이 없습니다.</div>'; return; }
+  data.forEach(p=>renderPostItem(p,pl));
+}
+
+function renderPostItem(p,container){
+  const catEmoji={'공지':'📢','일반':'💬','질문':'❓','유머':'😄'};
+  const date=new Date(p.created_at).toLocaleDateString('ko-KR');
+  const div=document.createElement('div'); div.className='post-item';
+  div.innerHTML=`
+    <div class="post-header">
+      <div><div class="post-title">${catEmoji[p.category]||''} ${p.title}</div><div class="post-meta">${p.author} · ${date} · <span class="badge badge-gray">${p.category}</span></div></div>
+      <button class="post-del">🗑</button>
+    </div>
+    <div class="post-body">${p.body}</div>
+    <button class="post-reply-toggle">💬 댓글 ${(p.post_replies||[]).length}개</button>
+    <div class="post-replies">
+      <div class="reply-list"></div>
+      <div class="reply-input-row">
+        <select class="reply-author"></select>
+        <input type="text" class="reply-text" placeholder="댓글 입력...">
+        <button class="reply-submit">등록</button>
+      </div>
+    </div>`;
+  const sel=div.querySelector('.reply-author');
+  MEMBER_NAMES.forEach(n=>{ const o=document.createElement('option'); o.value=n; o.textContent=n; sel.appendChild(o); });
+  function renderReplies(replies){
+    const rl=div.querySelector('.reply-list'); rl.innerHTML='';
+    (replies||[]).forEach(r=>{
+      const d=document.createElement('div'); d.className='reply-item';
+      d.innerHTML=`<span><span class="reply-author">${r.author}</span>${r.text}</span><button class="reply-del" data-id="${r.id}">✕</button>`;
+      d.querySelector('.reply-del').onclick=async()=>{ if(!confirm('삭제할까요?')) return; await sb.from('post_replies').delete().eq('id',r.id); loadPosts(); };
+      rl.appendChild(d);
+    });
+    div.querySelector('.post-reply-toggle').textContent=`💬 댓글 ${(replies||[]).length}개`;
+  }
+  renderReplies(p.post_replies);
+  div.querySelector('.post-del').onclick=async()=>{ if(!confirm('글을 삭제할까요?')) return; await sb.from('posts').delete().eq('id',p.id); loadPosts(); };
+  div.querySelector('.post-reply-toggle').onclick=()=>div.querySelector('.post-replies').classList.toggle('open');
+  div.querySelector('.reply-submit').onclick=async()=>{
+    const txt=div.querySelector('.reply-text').value.trim();
+    const auth=div.querySelector('.reply-author').value;
+    if(!txt) return;
+    await sb.from('post_replies').insert({post_id:p.id,author:auth,text:txt});
+    div.querySelector('.reply-text').value='';
+    loadPosts();
+  };
+  container.appendChild(div);
+}
+
+async function submitPost(){
+  const author=document.getElementById('postAuthor').value;
+  const category=document.getElementById('postCategory').value;
+  const title=document.getElementById('postTitle').value.trim();
+  const body=document.getElementById('postBody').value.trim();
+  if(!title||!body){ alert('제목과 내용을 입력해주세요.'); return; }
+  await sb.from('posts').insert({author,category,title,body});
+  document.getElementById('postTitle').value='';
+  document.getElementById('postBody').value='';
+  loadPosts();
+}
+
+loadPosts();
+
+/* ═══ 자금 차트 ═══ */
+new Chart(document.getElementById('yearFundChart'),{
   type:'bar',
-  data:{labels:months,datasets:[
-    {label:'수입',data:income2025,backgroundColor:'rgba(201,168,76,0.75)'},
-    {label:'지출',data:expense2025,backgroundColor:'rgba(192,57,43,0.7)'}
+  data:{labels:['2024년 말','2025년 말'],datasets:[
+    {label:'계좌',data:[137,138],backgroundColor:'rgba(59,130,246,0.8)'},
+    {label:'세이프티박스',data:[350,401],backgroundColor:'rgba(16,185,129,0.75)'},
+    {label:'합계',data:[487,539],backgroundColor:'rgba(245,158,11,0.7)'}
   ]},
-  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-    scales:{x:{ticks:{autoSkip:false,maxRotation:0,font:{size:10}}},
-            y:{ticks:{callback:v=>Math.round(v/10000)+'만'}}}}
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:12}}},y:{ticks:{callback:v=>v+'만'}}}}
 });
-
-/* ── 연도 비교 ── */
-const cum2025=[],cum2026=[1164450/10000,1164520/10000,null,null,null,null];
-let s=0;
-income2025.slice(0,6).forEach(v=>{s+=v;cum2025.push(Math.round(s/10000));});
-new Chart(document.getElementById('yearCompChart'),{
-  type:'line',
-  data:{labels:['1월','2월','3월','4월','5월','6월'],datasets:[
-    {label:'2025 누계',data:cum2025,borderColor:'#5DCAA5',backgroundColor:'rgba(93,202,165,0.08)',fill:true,tension:.35,pointRadius:4,pointBackgroundColor:'#5DCAA5'},
-    {label:'2026 누계',data:cum2026,borderColor:'#7F77DD',backgroundColor:'rgba(127,119,221,0.08)',fill:true,tension:.35,borderDash:[6,3],pointRadius:4,pointBackgroundColor:'#7F77DD'}
-  ]},
-  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-    scales:{y:{ticks:{callback:v=>v+'만'}}}}
-});
-
-/* ── 지출 도넛 ── */
 const expLabels=['여름여행','겨울정기모임','경조사','임시모임'];
 const expData=[999060,930026,290000,487900];
-const expColors=['#c9a84c','#3d7ebf','#c0392b','#5daa8f'];
+const expColors=['#3b82f6','#10b981','#ef4444','#f59e0b'];
 new Chart(document.getElementById('expCatChart'),{
   type:'doughnut',
   data:{labels:expLabels,datasets:[{data:expData,backgroundColor:expColors,borderWidth:0,hoverOffset:4}]},
   options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'65%'}
 });
-const tot=expData.reduce((a,b)=>a+b,0);
-const el=document.getElementById('expLegend');
+const etot=expData.reduce((a,b)=>a+b,0);
+const expEl=document.getElementById('expLegend');
 expLabels.forEach((l,i)=>{
-  const pct=Math.round(expData[i]/tot*100);
-  el.innerHTML+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-    <span style="width:10px;height:10px;border-radius:2px;background:${expColors[i]};flex-shrink:0"></span>
-    <span style="color:#444;font-size:13px;">${l}</span>
-    <span style="margin-left:auto;font-weight:500;color:#1a1a2e;">${pct}%</span>
-  </div>`;
+  const pct=Math.round(expData[i]/etot*100),amt=Math.round(expData[i]/10000);
+  expEl.innerHTML+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><span style="width:10px;height:10px;border-radius:2px;background:${expColors[i]};flex-shrink:0"></span><span style="color:var(--text2);">${l}</span><span style="margin-left:auto;font-weight:500;color:var(--text);">${pct}% (${amt}만원)</span></div>`;
 });
 
-/* ── 2026 납부 ── */
-new Chart(document.getElementById('fee2026Chart'),{
-  type:'bar',
-  data:{labels:memberNames10,datasets:[{label:'납부액',data:fees2026,backgroundColor:'rgba(201,168,76,0.7)'}]},
-  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-    scales:{x:{ticks:{maxRotation:30,font:{size:10}}},
-            y:{ticks:{callback:v=>Math.round(v/10000)+'만'}}}}
-});
-
-/* ── 구성원 카드 ── */
-const grid=document.getElementById('memberGrid');
-const tBody=document.getElementById('memberTable');
-members.forEach(m=>{
-  const init=m.name[0];
-  const roleClass=m.role==='회장'?'badge-chair':m.role==='총무'||m.role==='전총무'?'badge-sec':'badge-ok';
-  grid.innerHTML+=`<div class="member-card">
-    <div class="avatar">${init}</div>
-    <div class="member-name">${m.name}</div>
-    <div class="member-role">${m.role}</div>
-    <div class="member-fee">✓ 완납</div>
-  </div>`;
-  const diff=m.paid-m.charge;
-  tBody.innerHTML+=`<tr>
-    <td>${m.name}</td>
-    <td><span class="badge ${roleClass}">${m.role}</span></td>
-    <td>${m.charge.toLocaleString()}원</td>
-    <td>${m.paid.toLocaleString()}원</td>
-    <td style="color:${diff>=0?'#2e7d32':'#c0392b'}">${diff===0?'0원':(diff>0?'+':'')+diff.toLocaleString()+'원'}</td>
-  </tr>`;
-});
-
-/* ── 여행 시뮬레이터 ── */
+/* ═══ 여행 시뮬레이터 ═══ */
+function updateGoal(){
+  const g=parseInt(document.getElementById('goalSlider').value);
+  document.getElementById('goalVal').textContent=g.toLocaleString()+'만원';
+  document.getElementById('progressTarget').innerHTML=`목표 <strong>${g.toLocaleString()}만원</strong>`;
+  const cur=539,pct=Math.min(Math.round(cur/g*1000)/10,100);
+  document.getElementById('progressFill').style.width=pct+'%';
+  document.getElementById('progressNote').textContent=`${cur}만원 / ${g.toLocaleString()}만원 달성 · 약 ${pct}% · 목표까지 ${Math.max(g-cur,0).toLocaleString()}만원 남음`;
+}
 let tChart=null;
 function calcTravel(){
-  const pax=+document.getElementById('pax').value;
-  const air=+document.getElementById('airfare').value;
-  const hot=+document.getElementById('hotel').value;
-  const mis=+document.getElementById('misc').value;
+  const pax=+document.getElementById('pax').value,air=+document.getElementById('airfare').value,hot=+document.getElementById('hotel').value,mis=+document.getElementById('misc').value;
   document.getElementById('paxVal').textContent=pax+'명';
   document.getElementById('airVal').textContent=Math.round(air/10000)+'만원';
   document.getElementById('hotelVal').textContent=Math.round(hot/10000)+'만원';
   document.getElementById('miscVal').textContent=Math.round(mis/10000)+'만원';
-  const total=(air+hot+mis)*pax;
-  const futureIncome=300000*10;
-  const yearEnd=5177625+futureIncome;
-  const gap=yearEnd-total;
+  const total=(air+hot+mis)*pax,future=300000*10,yearEnd=5390000+future,gap=yearEnd-total;
   document.getElementById('rTotal').textContent=Math.round(total/10000)+'만원';
-  document.getElementById('rFuture').textContent=Math.round(futureIncome/10000)+'만원';
+  document.getElementById('rFuture').textContent=Math.round(future/10000)+'만원';
   document.getElementById('rYearEnd').textContent=Math.round(yearEnd/10000)+'만원';
-  const gapEl=document.getElementById('rGap');
-  const gapRow=document.getElementById('gapRow');
-  gapEl.textContent=(gap>=0?'+':'')+Math.round(gap/10000)+'만원 '+(gap>=0?'여유':'부족');
-  gapRow.className='res-row '+(gap>=0?'surplus':'shortfall');
-
+  document.getElementById('rGap').textContent=(gap>=0?'+':'')+Math.round(gap/10000)+'만원 '+(gap>=0?'여유':'부족');
+  document.getElementById('gapRow').className='res-row '+(gap>=0?'surplus':'shortfall');
   if(tChart) tChart.destroy();
-  tChart=new Chart(document.getElementById('travelChart'),{
-    type:'bar',
-    data:{
-      labels:['항공권 합계','숙박 합계','식비/기타 합계','현재 잔액','연말 예상 잔액','총 필요 예산'],
-      datasets:[{
-        data:[air*pax,hot*pax,mis*pax,5177625,yearEnd,total],
-        backgroundColor:['rgba(201,168,76,0.75)','rgba(93,202,165,0.7)','rgba(127,119,221,0.7)','rgba(61,126,191,0.65)','rgba(61,126,191,0.65)','rgba(192,57,43,0.7)'],
-        borderWidth:0
-      }]
-    },
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-      scales:{x:{ticks:{font:{size:10}}},y:{ticks:{callback:v=>Math.round(v/10000)+'만'}}}}
-  });
+  tChart=new Chart(document.getElementById('travelChart'),{type:'bar',data:{labels:['항공권 합계','숙박 합계','식비/기타','현재 잔액','연말 예상','총 필요'],datasets:[{data:[air*pax,hot*pax,mis*pax,5390000,yearEnd,total],backgroundColor:['rgba(59,130,246,0.8)','rgba(16,185,129,0.75)','rgba(139,92,246,0.75)','rgba(245,158,11,0.75)','rgba(245,158,11,0.75)','rgba(239,68,68,0.75)'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:10}}},y:{ticks:{callback:v=>Math.round(v/10000)+'만'}}}}});
 }
 calcTravel();
 
-/* ── NAV active on scroll ── */
-const sections=document.querySelectorAll('section[id]');
-const navLinks=document.querySelectorAll('#main-nav a');
-const observer=new IntersectionObserver(entries=>{
-  entries.forEach(e=>{
-    if(e.isIntersecting){
-      navLinks.forEach(a=>a.classList.remove('active'));
-      const link=document.querySelector(`#main-nav a[href="#${e.target.id}"]`);
-      if(link) link.classList.add('active');
-    }
+/* ═══ 모임 기록 ═══ */
+const meetYearEl=document.getElementById('meetYear');
+YEARS.forEach(y=>{ const o=document.createElement('option'); o.value=y; o.textContent=y+'년'; if(y===2026)o.selected=true; meetYearEl.appendChild(o); });
+
+async function loadMeetings(){
+  const mg=document.getElementById('meetingGrid');
+  const me=document.getElementById('meetingEmpty');
+  mg.innerHTML='<div class="loading" style="grid-column:1/-1"><span class="spinner"></span>불러오는 중...</div>';
+  const {data,error}=await sb.from('meetings').select('*').order('year',{ascending:false}).order('created_at',{ascending:false});
+  mg.innerHTML='';
+  if(error||!data||data.length===0){ me.style.display='block'; return; }
+  me.style.display='none';
+  const tagColors=['badge-blue','badge-green','badge-amber','badge-purple'];
+  data.forEach((m,i)=>{
+    mg.innerHTML+=`<div class="meeting-card">
+      <span class="badge ${tagColors[i%4]}">${m.year}년</span>
+      <div class="meeting-title">${m.title}</div>
+      <div class="meeting-meta"><span>📍 ${m.place||'미정'}</span><span>👥 ${m.members||'—'}</span></div>
+      ${m.note?`<div class="meeting-note">${m.note}</div>`:''}
+      <button onclick="deleteMeeting(${m.id})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:11px;margin-top:8px;">🗑 삭제</button>
+    </div>`;
   });
-},{threshold:0.4});
-sections.forEach(s=>observer.observe(s));
+}
+
+async function addMeeting(){
+  const year=parseInt(document.getElementById('meetYear').value);
+  const title=document.getElementById('meetTitle').value.trim();
+  const place=document.getElementById('meetPlace').value.trim();
+  const members_count=document.getElementById('meetMembers').value.trim();
+  const note=document.getElementById('meetNote').value.trim();
+  if(!title){ alert('모임명을 입력해주세요.'); return; }
+  await sb.from('meetings').insert({year,title,place:place||'미정',members:members_count||'—',note});
+  ['meetTitle','meetPlace','meetMembers','meetNote'].forEach(id=>document.getElementById(id).value='');
+  loadMeetings();
+}
+
+async function deleteMeeting(id){
+  if(!confirm('삭제할까요?')) return;
+  await sb.from('meetings').delete().eq('id',id);
+  loadMeetings();
+}
+
+loadMeetings();
+
+/* ═══ NAV 스크롤 ═══ */
+const navLinks=document.querySelectorAll('#main-nav a');
+new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ navLinks.forEach(a=>a.classList.remove('active')); const l=document.querySelector(`#main-nav a[href="#${e.target.id}"]`); if(l)l.classList.add('active'); }});
+},{threshold:0.3}).observe;
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ navLinks.forEach(a=>a.classList.remove('active')); const l=document.querySelector(`#main-nav a[href="#${e.target.id}"]`); if(l)l.classList.add('active'); }});
+},{threshold:0.3});
+document.querySelectorAll('section[id]').forEach(s=>obs.observe(s));
 </script>
 </body>
 </html>
