@@ -400,11 +400,7 @@ footer .hl { color: rgba(255,255,255,0.85); }
   <div class="container">
     <p class="section-tag">Rules</p>
     <h2 class="section-title">회칙</h2>
-    <div class="vote-grid">
-      <div class="vote-card"><div class="vote-pct">70%</div><div class="vote-label">중대 사안</div><div class="vote-example">회비 인상, 신규 회원 가입, 운영 규칙 변경</div></div>
-      <div class="vote-card"><div class="vote-pct">60%</div><div class="vote-label">중간 사안</div><div class="vote-example">해외 모임, 1박 2일 특별 모임, 회계 방식 조정</div></div>
-      <div class="vote-card"><div class="vote-pct">50%</div><div class="vote-label">일반 사안</div><div class="vote-example">일정 조율, 장소 선택, 단순 활동 계획</div></div>
-    </div>
+
     <div class="card">
       <div class="rule-block"><div class="rule-chapter">2장 임원</div><div class="rule-item">회장 1명 <strong>(장영익)</strong> · 총무 1명 <strong>(황재철)</strong></div><div class="rule-item">임기 1년, 연임 가능 · 매년 연말 투표 선임</div></div>
       <div class="rule-block"><div class="rule-chapter">3장 모임</div><div class="rule-item">정기모임: 하계·동계 각 1회 — 회원 1/2 동의 없으면 취소</div><div class="rule-item">임시모임: 회장 재량 또는 정원 1/2 이상 요청 시</div></div>
@@ -804,7 +800,7 @@ YEARS.forEach(y=>{const o=document.createElement('option');o.value=y;o.textConte
 async function loadMeetings() {
   const mg=document.getElementById('meetingGrid'), me=document.getElementById('meetingEmpty');
   mg.innerHTML='<div class="loading" style="grid-column:1/-1"><span class="spinner"></span>불러오는 중...</div>';
-  const data=await dbGet('meetings','order=year.desc,created_at.desc');
+  const data=await dbGet('meetings','order=year.desc&order=created_at.desc');
   mg.innerHTML='';
   if(!data||data.length===0){me.style.display='block';return;}
   me.style.display='none';
